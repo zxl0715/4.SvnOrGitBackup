@@ -1,8 +1,8 @@
-import multiprocessingTest
+import multiprocessing
 from joblib import Parallel, delayed
 from tqdm import tqdm
 
-num_cores = multiprocessingTest.cpu_count()
+num_cores = multiprocessing.cpu_count()
 
 myList = {1, 2, 3, 4, 5, }
 inputs = tqdm(myList)
