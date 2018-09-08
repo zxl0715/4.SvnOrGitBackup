@@ -1,6 +1,7 @@
 import configparser
 
 cf = configparser.ConfigParser()
+'''conf.ini  （ini，conf）'''
 cf.read('app.conf',encoding="utf-8-sig" )
 
 
