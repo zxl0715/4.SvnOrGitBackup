@@ -4,6 +4,10 @@ import time
 
 import apscheduler
 from apscheduler.schedulers.blocking import BlockingScheduler
+from apscheduler.events import (EVENT_JOB_EXECUTED, EVENT_JOB_ERROR)
+import math
+
+content = dir(math)
 
 
 def my_job():
@@ -11,10 +15,7 @@ def my_job():
 
 
 sched = BlockingScheduler()
-# sched.add_job(my_job, 'interval', seconds=5)
-# 定时每天 12:15:07秒执行任务
-sched.add_job(my_job,'cron', hour=12, minute=15, second=7)
-sched.start()
+
 
 
 # 4.异常处理
@@ -24,13 +25,24 @@ def err_listener(ev):
     err_logger = logging.getLogger('schedErrJob')
     if ev.exception:
         err_logger.exception('%s error.', str(ev.job))
+        print('%s error.', str(ev.job))
+
     else:
         err_logger.info('%s miss', str(ev.job))
+        print('%s miss', str(ev.job))
 
 
-apscheduler.add_listener(err_listener, apscheduler.events.EVENT_JOB_ERROR | apscheduler.events.EVENT_JOB_MISSED)
+
+# sched.add_job(my_job, 'interval', seconds=5)
+# 定时每天 12:15:07秒执行任务
+sched.add_job(my_job, 'cron', hour=17, minute=33, second=20)
+sched.add_listener(err_listener, apscheduler.events.EVENT_JOB_ERROR | apscheduler.events.EVENT_JOB_MISSED)
+
+sched.start()
 # 每60秒查看下网络连接情况
 if __name__ == '__main__':
+
+
     os.system("netstat -an")
 
 # 每分钟执行一次，可以写成， */1 * * * * cmd

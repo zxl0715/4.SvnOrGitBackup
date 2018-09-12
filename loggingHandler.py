@@ -14,22 +14,26 @@ formatter = logging.Formatter(fmt='%(asctime)s %(filename)s[line:%(lineno)d] %(l
 
 # 写入文件，如果文件超过100个Bytes，仅保留5个文件。
 handler = logging.handlers.RotatingFileHandler(
-    logDir+'/app.log', maxBytes=2 * 1024 * 1024, backupCount=5)
+    logDir + '/app.log', maxBytes=2 * 1024 * 1024, backupCount=5)
 handler.setFormatter(formatter)
 handler.setLevel(logging.INFO)
 logger.addHandler(handler)
+
 '''日志输出到屏幕控制台'''
 ch = logging.StreamHandler()
 ch.setFormatter(formatter)
 ch.setLevel(logging.INFO)
 logger.addHandler(ch)
 
-logger.critical('Critical Something')
-logger.error('Error Occurred')
-logger.warning('Warning exists')
-logger.info('Finished')
-logger.debug('Debugging')
+if __name__ == '__main__':
 
-while True:
-    logger.info("sleep     sleepsleepsleepsleepsleepsleepsleepsleepsleepsleepsleeptest")
-    logger.critical('test critical')
+
+    logger.critical('Critical Something')
+    logger.error('Error Occurred')
+    logger.warning('Warning exists')
+    logger.info('Finished')
+    logger.debug('Debugging')
+
+    while True:
+        logger.info("sleep     sleepsleepsleepsleepsleepsleepsleepsleepsleepsleepsleeptest")
+        logger.critical('test critical')
