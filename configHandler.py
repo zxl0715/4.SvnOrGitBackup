@@ -5,6 +5,11 @@ cf = configparser.ConfigParser()
 cf.read('app.conf', encoding="utf-8-sig")
 
 
+def getFirstStartup():
+    '''#程序启动是否运行，1为运行，0为不运行'''
+    return cf.getboolean('system', 'FirstStartup')
+
+
 def getZipAppPath():
     '''获取WinRAR 压缩文件的路径'''
     return cf.get('config', 'zipAppPath')

@@ -10,10 +10,10 @@ def run_task(name):
 if __name__ == '__main__':
     num_cores = multiprocessing.cpu_count()
     print('current process {0}'.format(os.getpid()))
-    p = multiprocessing.Pool(processes=num_cores)
+    pool = multiprocessing.Pool(processes=num_cores)
     for i in range(8):
-        p.apply_async(run_task, args=(i,))
+        pool.apply_async(run_task, args=(i,))
     print('Waiting for all subprocesses done...')
-    p.close()
-    p.join()
+    pool.terminate()
+    pool.join()
     print('All processes done!')

@@ -16,13 +16,13 @@ formatter = logging.Formatter(fmt='%(asctime)s %(filename)s[line:%(lineno)d] %(l
 handler = logging.handlers.RotatingFileHandler(
     logDir + '/app.log', maxBytes=2 * 1024 * 1024, backupCount=5)
 handler.setFormatter(formatter)
-handler.setLevel(logging.INFO)
+handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
 '''日志输出到屏幕控制台'''
 ch = logging.StreamHandler()
 ch.setFormatter(formatter)
-ch.setLevel(logging.INFO)
+ch.setLevel(logging.DEBUG)
 logger.addHandler(ch)
 
 if __name__ == '__main__':

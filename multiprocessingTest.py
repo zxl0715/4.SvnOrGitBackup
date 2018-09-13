@@ -1,8 +1,15 @@
 import multiprocessing
 import os
+import random
+import time
 
-def run_proc(name):
-    print('Child process {0} {1} Running '.format(name, os.getpid()))
+
+def run_proc(job_id):
+    print('Child process Job  {0} {1} Running begin! {2}'.format(job_id, os.getpid() , time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+    time.sleep(random.randint(3,6))
+    print('Child process Job  {0} {1} Running end! {2}'.format(job_id, os.getpid() , time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))))
+
+
 
 if __name__ == '__main__':
 

@@ -6,6 +6,8 @@ import pprint
 import os
 import svn.config
 
+import loggingHandler
+
 '''配置svn编码，否则在控制台输出svn信息报错'''
 # 'zh_CN.UTF-8' GBK
 codeing = 'GBK'
@@ -40,7 +42,9 @@ def pull(path):
         r.cleanup()
         r.update()
     except Exception as e:
-        print(e)
+        loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，错误信息{3}'.format(3001, 'svn', path, e))
+        return False
+    return True
 
 
 if __name__ == '__main__':
