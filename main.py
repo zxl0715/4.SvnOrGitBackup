@@ -17,7 +17,11 @@ from APSchedulerHandler import JobManager
 
 
 # 拉取代码
+import FileHandler
+
+
 def pull_code(svnOrGit='svn', path=''):
+    status=False
     if os.path.exists(path) == False:
         loggingHandler.logger.warning('{0} 路径{1}不存在。'.format(svnOrGit, path))
     try:
@@ -36,34 +40,18 @@ def pull_code(svnOrGit='svn', path=''):
 
 
 #
-def pull(svnOrGit='svn'):
-    num_cores = multiprocessing.cpu_count()
-    p = object()
+def backup_svn_git():
     '''拉取代码'''
-    status = False
-    paths = ''
-
-    svnOrGit = svnOrGit.lower()
-    # if svnOrGit == 'svn':
-    #     paths = configHandler.getSvnPath()
-    # else:
-    #     paths = configHandler.getGitPath()
-    # paths = paths.split(';')
     # 获取svn和git本地仓库路径
-    pathMap = []
-    paths = configHandler.getSvnPath().split(';')
-    for path in paths:
-        pathMap.append(['svn', path])
-    paths = configHandler.getGitPath().split(';')
-    for path in paths:
-        pathMap.append(['git', path])
+    paths = configHandler.getSvnOrGitPath()
+    # 获取本机cpu数量
+    num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cores)
-
-    for map in pathMap:
+    for map in paths:
         '''使用多进程执行'''
         # pool = multiprocessing.Process(target=pull_code, args=(svnOrGit,path,))
-        pool.apply_async(pull_code, args=(map[0], map[1],))
-        print('process start {}{}'.format(map[0], map[1]))
+        pool.apply_async(pull_code, args=(map[0], map[2],))
+        print('process start {}{}'.format(map[0], map[2]))
 
     pool.close()
     pool.join()
@@ -106,7 +94,7 @@ def job():
 
 
 if __name__ == '__main__':
-    loggingHandler.logger.info('/r/n————————————————————————————————————————————————/r/n')
+    loggingHandler.logger.info(r'\n————————————————————————————————————————————————\n')
     loggingHandler.logger.info('启动程序运行！')
 
     '''设置启动运行'''
@@ -114,8 +102,13 @@ if __name__ == '__main__':
     # firstStartup = False
     if firstStartup:
         loggingHandler.logger.info('启动首次运行！')
-        pull('svn')
-        pull('git')
+        backup_svn_git()
+
+        fileHandler = FileHandler()
+        backupRep = fileHandler.getBackupRepository()
+        fileHandler.backupRepository(backupRep)
+        fileHandler.svn_commit(backupRep)
+
         loggingHandler.logger.info('结束首次运行！')
 
     loggingHandler.logger.info('开始启动定时任务……')

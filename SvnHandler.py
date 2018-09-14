@@ -46,7 +46,13 @@ def pull(path):
         return False
     return True
 
-
+def add(path):
+    r = svn.local.LocalClient(path)
+    # 用来清理locked，防止更新时失败
+    r.add(path)
+def commit(path):
+    r = svn.local.LocalClient(path)
+    r.commit()
 if __name__ == '__main__':
     url = u'https://zxl0715:8443/svn/testSVN/'
     path = r'D:\testSvnPython'

@@ -1,4 +1,5 @@
 import subprocess
+import time
 import zipfile as zf
 import platform as pf
 import os
@@ -49,13 +50,33 @@ class ZipObj():
 
 if __name__ == "__main__":
     pwd = configHandler.getZipPwd()
-    dst = configHandler.getSourcePath()
+    dst = configHandler.getBackupPath()
     target = configHandler.getTargetPath()
+    date = time.strftime('%Y%m%d', time.localtime(time.time()))
+    zipPath = r'{}\研发成果-{}'.format(target, date)
     if os.path.exists(dst) is False:
         print('路径不存在')
     parent_path = os.path.dirname(dst)
 
-    zipo = ZipObj(dst, pwd)
-    zipo.enCrypt(targetPath=target, deleteSource=False)
+    if os.path.exists(zipPath) is False:
+        os.makedirs(zipPath)
+    _dir = ''
+    _dep_name = ''
+    for dir in os.listdir(dst):
+        if dir.find(".svn") >= 0:
+            continue
+        if dir.startswith('sp'):
+            _dep_name = '软研'
+        elif dir.startswith('hp'):
+            _dep_name = '硬研'
+
+        _dir = r'{}\{}'.format(zipPath, _dep_name)
+        if os.path.exists(_dir) is False:
+            os.makedirs(_dir)
+
+        # _dir = r'{}\{}'.format(_dir, os.path.basename(dir))
+
+        zipo = ZipObj(r'{}\{}'.format(dst,dir), pwd)
+        zipo.enCrypt(targetPath=_dir, deleteSource=False)
 
     # zipo.deCrypt()
