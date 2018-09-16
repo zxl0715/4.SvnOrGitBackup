@@ -48,6 +48,15 @@ class ZipObj():
         zfile.extractall(r"zipdata", pwd=self.passwd.encode('utf-8'))
 
 
+def getDetpName(code):
+    deptInfo = configHandler.getDdepartment()
+    for dept in deptInfo:
+        if code == dept[0]:
+            return dept[1]
+
+    return None
+
+
 if __name__ == "__main__":
     pwd = configHandler.getZipPwd()
     dst = configHandler.getBackupPath()
@@ -61,22 +70,43 @@ if __name__ == "__main__":
     if os.path.exists(zipPath) is False:
         os.makedirs(zipPath)
     _dir = ''
+    _dep_code = ''
     _dep_name = ''
+    _index = 0
+    _zip_path = ''
     for dir in os.listdir(dst):
+        _index = dir.find("-")
+        if os.path.isdir('{}\{}'.format(dst,dir))==False:
+            continue
         if dir.find(".svn") >= 0:
             continue
-        if dir.startswith('sp'):
-            _dep_name = '软研'
-        elif dir.startswith('hp'):
-            _dep_name = '硬研'
+
+        if _index > 0:
+            _dep_code = dir[:_index]
+            _dep_name = getDetpName(_dep_code)
 
         _dir = r'{}\{}'.format(zipPath, _dep_name)
         if os.path.exists(_dir) is False:
             os.makedirs(_dir)
 
+        with open('{}\{}'.format(dst, '项目备份保存清单.txt')) as f:
+            line = f.readline()
+            while line:
+                # print(line)
+                # _index=line.find(":")
+                # if _index > 0:
+                #     _dep_code = dir[:_index]
+                if line.startswith(dir):
+                    # str = line.split(':')
+                    f = open('{}\工程说明.txt'.format(_dir), 'a+')
+                    f.write(line)
+                    f.close()
+                    break
+                else:
+                    line = f.readline()
         # _dir = r'{}\{}'.format(_dir, os.path.basename(dir))
-
-        zipo = ZipObj(r'{}\{}'.format(dst,dir), pwd)
+        _zip_path = r'{}\{}'.format(dst, dir)
+        zipo = ZipObj(_zip_path, pwd)
         zipo.enCrypt(targetPath=_dir, deleteSource=False)
 
     # zipo.deCrypt()

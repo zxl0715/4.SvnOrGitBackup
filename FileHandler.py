@@ -41,10 +41,34 @@ class FileHandler:
     def backupRepository(self, backupPath=[]):
         '''执行需要备份的svn或git代码库'''
         backupServerPath = configHandler.getBackupPath()
+        fileName = '项目备份保存清单.txt'
+        fileProject='{}\{}'.format(backupServerPath, fileName)
         if os.path.exists(backupServerPath) == False:
             loggingHandler.logger.warning('备份服务器svn路径不存在{}，请检查！', backupServerPath)
 
+        if os.path.exists(fileProject)==True:
+            os.remove(fileProject)
         for path in backupPath:
+
+            if path[2].strip() == '':
+                continue
+            filePath = path[2]
+            if os.path.isfile(filePath) == False:
+                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(filePath))
+                continue
+            with open(filePath) as f:
+                line = f.readline()
+                while line:
+                    # print(line)
+                    str = line.split(':')
+                    if str[0] == path[3]:
+                        f = open(fileProject, 'a+')
+                        f.write('{}-{}'.format(path[0],line))
+                        f.close()
+                        break
+                    else:
+                        line = f.readline()
+
             # 拷贝文件 “项目备份保存清单.txt”
             # shutil.copy2(path[2], '{}\{}'.format(backupServerPath, os.path.basename(path[2])))
 

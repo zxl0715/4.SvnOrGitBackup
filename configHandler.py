@@ -1,9 +1,13 @@
 import configparser
 import sys
+import loggingHandler
 
 cf = configparser.ConfigParser()
 '''conf.ini  （ini，conf）'''
-cf.read('app.conf', encoding="utf-8-sig")
+try:
+    cf.read('app.conf', encoding="utf-8-sig")
+except Exception as e:
+    loggingHandler.logger.exception('错误代码：10001 读取配置文件失败，请检查应用程序配置文件信息！')
 
 
 def getFirstStartup():
@@ -32,6 +36,40 @@ def getBackupPath():
 def getTargetPath():
     '''压缩到指定的路径'''
     return cf.get('config', 'TargetPath')
+
+
+def getDdepartment():
+    '''获取部门信息'''
+    sections = cf.sections()
+    valueList = []
+
+    for section in sections:
+        if section.find('Department') == 0:
+            # 部门代号：软研中心“sp” 硬研中心为“hp” 其他中心待定。
+            code = cf.get(section, 'Code')
+            # 部门名称：软研中心， 硬研中心
+            name = cf.get(section, 'Name')
+            valueList.append([code, name])
+    return valueList
+
+
+def getTimedTask():
+    '''设置定时任务时间'''
+    sections = cf.sections()
+    valueList = []
+    numOrder = ''
+    for section in sections:
+        if section.find('TimedTask') == 0:
+            # 是否启用归档模式：默认0为不启用（只备份源代码，不进行归档操作），1为启用（备份源代码及归档操作）
+            archivemmode = cf.getint(section, 'ArchiveMode')
+            # 时
+            hour = cf.getint(section, 'Hour')
+            # 分
+            minute = cf.getint(section, 'Minute')
+            # 秒
+            second = cf.getint(section, 'Second')
+            valueList.append([archivemmode, hour, minute, second])
+    return valueList
 
 
 def getSvnOrGitPath():

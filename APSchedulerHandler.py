@@ -49,8 +49,8 @@ class JobManager(object):
         trigger = CronTrigger(**trigger_dict)
 
         # job = self.scheduler.add_job(method, 'cron', hour=17, minute=33, second=20)
-        job = self.scheduler.add_job(method, trigger, id=jobid, args=[jobid])
-
+        # job = self.scheduler.add_job(method, trigger, id=jobid, args=[jobid])
+        job = self.scheduler.add_job(method, trigger)
         print("add job %s successful!" % jobid + "; next_run_time: + str(job.next_run_time)" )
 
 
