@@ -1,5 +1,6 @@
 import os
 import shutil
+import socket
 import time
 
 import svn
@@ -38,6 +39,7 @@ class FileHandler:
                     line = f.readline()
         return backupRep
 
+    # backupPath=<class 'list'>: [['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '产销差系统', 'D:\\testSVN\\产销差系统'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '智慧水务赋能管控平台', 'D:\\testSVN\\智慧水务赋能管控平台'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '一个项目工程', 'D:\\testSVN\\一个项目工程']]
     def backupRepository(self, backupPath=[]):
         '''执行需要备份的svn或git代码库'''
         backupServerPath = configHandler.getBackupPath()
@@ -53,9 +55,11 @@ class FileHandler:
             if path[2].strip() == '':
                 continue
             filePath = path[2]
+            # 检查根目录下是否有 项目备份保存清单.txt 文件
             if os.path.isfile(filePath) == False:
                 loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(filePath))
                 continue
+            # 从 项目备份保存清单文件里，读取需要备份的工程项目，并写入到 备份目录
             with open(filePath) as f:
                 line = f.readline()
                 while line:
@@ -68,16 +72,22 @@ class FileHandler:
                         break
                     else:
                         line = f.readline()
+            # 进行源码文本备份（备份到目标文件夹）
+            sourcepath = path[4]
+            tagerpath = '{}\{}-{}'.format(backupServerPath, path[0], os.path.basename(path[4]))
+            # 方案一
+            # self.copyFiles(sourcepath,tagerpath)
 
-            # 拷贝文件 “项目备份保存清单.txt”
-            # shutil.copy2(path[2], '{}\{}'.format(backupServerPath, os.path.basename(path[2])))
+            # 方案二
+            if os.path.exists(tagerpath):
+                shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
+            shutil.copytree(sourcepath, tagerpath)
 
-            # shutil.copytree(path[4], '{}\{}-{}'.format(backupServerPath, path[0], os.path.basename(path[4])))
-            self.copyFiles(path[4], '{}\{}-{}'.format(backupServerPath, path[0], os.path.basename(path[4])))
             # shutil.copytree(path[4], '{}\{}'.format(backupServerPath, os.path.basename(path[4])), symlinks=False,
             #                 ignore=shutil.ignore_patterns(".svn"), copy_function=shutil.copy2,
             #                 ignore_dangling_symlinks=True)
-            # shutil.move(path[4], '{}\{}'.format(backupServerPath, os.path.basename(path[4])))
+
+            # shutil.move(sourcepath, tagerpath)
 
     def copyFiles(self, sourceDir, targetDir):
         '''从源svn或git目录，备份文件到备份的svn目录下'''
@@ -110,12 +120,12 @@ class FileHandler:
             aa = 1
             for file in changFile:
                 rel_filepaths.append(file.name)
-                #未进行管控的文件
+                # 未进行管控的文件
                 if file.type_raw_name == 'unversioned':
                     aa += 1
                     repo.add(file.name)
                     un_filepaths.append(file.name)
-                #修改（过时）的文件
+                # 修改（过时）的文件
                 if file.type_raw_name == 'missing':
                     aa += 1
                     repo.delete(file.name)
@@ -129,11 +139,23 @@ class FileHandler:
             if len(rel_filepaths) > 0:
                 # 添加到需要提交的列表
                 message = '备份系统自动提交，日期为:{0}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+                message += '{}ip地址为{}'.format(os.linesep, self.get_host_ip())
+
                 repo.cleanup()
                 repo.commit(message, rel_filepaths)
             # SvnHandler.commit(tempPath)
         except Exception as e:
             loggingHandler.logger.exception('提交文件至备份svn服务出错 {0}'.format(backupServerPath))
+
+    def get_host_ip(self):
+        '''获取本机ip'''
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            s.connect(('8.8.8.8', 80))
+            ip = s.getsockname()[0]
+        finally:
+            s.close()
+        return ip
 
 
 if __name__ == '__main__':
