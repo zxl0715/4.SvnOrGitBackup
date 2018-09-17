@@ -42,11 +42,11 @@ class FileHandler:
         '''执行需要备份的svn或git代码库'''
         backupServerPath = configHandler.getBackupPath()
         fileName = '项目备份保存清单.txt'
-        fileProject='{}\{}'.format(backupServerPath, fileName)
+        fileProject = '{}\{}'.format(backupServerPath, fileName)
         if os.path.exists(backupServerPath) == False:
             loggingHandler.logger.warning('备份服务器svn路径不存在{}，请检查！', backupServerPath)
 
-        if os.path.exists(fileProject)==True:
+        if os.path.exists(fileProject) == True:
             os.remove(fileProject)
         for path in backupPath:
 
@@ -63,7 +63,7 @@ class FileHandler:
                     str = line.split(':')
                     if str[0] == path[3]:
                         f = open(fileProject, 'a+')
-                        f.write('{}-{}'.format(path[0],line))
+                        f.write('{}-{}'.format(path[0], line))
                         f.close()
                         break
                     else:
@@ -104,21 +104,30 @@ class FileHandler:
 
         try:
             repo = svn.local.LocalClient(backupServerPath)
-            changeFiel = repo.status()
+            changFile = repo.status()
             un_filepaths = []
             rel_filepaths = []
             aa = 1
-            for file in changeFiel:
-                if aa == 1:
-                    rel_filepaths.append(file.name)
-                    if file.type_raw_name == 'unversioned':
-                        aa += 1
-                        un_filepaths.append(file.name)
+            for file in changFile:
+                rel_filepaths.append(file.name)
+                #未进行管控的文件
+                if file.type_raw_name == 'unversioned':
+                    aa += 1
+                    repo.add(file.name)
+                    un_filepaths.append(file.name)
+                #修改（过时）的文件
+                if file.type_raw_name == 'missing':
+                    aa += 1
+                    repo.delete(file.name)
+                    un_filepaths.append(file.name)
 
                 print(file)
-            if len(un_filepaths) > 0:
-                repo.add(un_filepaths)  # 添加未管控的文件
+            # if len(un_filepaths) > 0:
+            #     # 添加未管控的文件
+            #     repo.add(un_filepaths)
+
             if len(rel_filepaths) > 0:
+                # 添加到需要提交的列表
                 message = '备份系统自动提交，日期为:{0}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
                 repo.cleanup()
                 repo.commit(message, rel_filepaths)

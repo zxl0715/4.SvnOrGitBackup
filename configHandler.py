@@ -85,7 +85,5 @@ def getSvnOrGitPath():
             depCode = cf.get(section, 'DepartmentCode')
             # svn或git 本地路径
             path = cf.get(section, 'LocalPath')
-            # 软研中心工程名称格式：sp-工程名称, 硬研中心工程名称格式：hp-工程名称,其他中心待定。
-            dept = cf.get(section, 'Department')
-            valueList.append([type, depCode, path, dept])
+            valueList.append([type, depCode, path])
     return valueList
