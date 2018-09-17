@@ -33,8 +33,8 @@ class ZipObj():
             target = targetPath + '\\' + os.path.basename(self.filepathname) + ".zip"
         else:
             target = self.filepathname + ".zip"
-
-        source = self.filepathname + '\*.*'
+        if os.path.isdir(self.filepathname):
+            source = self.filepathname + '\*.*'
         if pf.system() == "Windows":
             cmd = ['rar', 'a', '-r', '-ibck', '-ad', '-ep1', '-p{0}'.format(self.passwd), target, source]
             p = subprocess.Popen(cmd, executable=self.zipPath, stdout=subprocess.PIPE)
@@ -56,77 +56,12 @@ class ZipObj():
         zfile.extractall(r"zipdata", pwd=self.passwd.encode('utf-8'))
 
 
-def getDetpName(code):
-    deptInfo = configHandler.getDdepartment()
-    for dept in deptInfo:
-        if code == dept[0]:
-            return dept[1]
-
-    return None
-
-
 if __name__ == "__main__":
-    startswith = '研发成果'
-    pwd = configHandler.getZipPwd()
-    dst = configHandler.getBackupPath()
-    target = configHandler.getTargetPath()
-    parent_path = os.path.dirname(dst)
-    date = time.strftime('%Y%m%d', time.localtime(time.time()))
-    zipPath = r'{}\{}-{}'.format(target, startswith, date)
-
-    if os.path.exists(dst) is False:
-        print('路径不存在')
-    try:
-        for dir in os.listdir(target):
-            if dir.startswith(startswith):
-                shutil.rmtree('{}\{}'.format(target, dir))
-
-    except Exception as e:
-        loggingHandler.logger.exception('5001  删除历史归档文件失败，请检查文件是否被占用或无权限访问！')
-
-    if os.path.exists(zipPath) is False:
-        os.makedirs(zipPath)
-    _dir = ''
-    _dep_code = ''
-    _dep_name = ''
-    _index = 0
-    _zip_path = ''
-    for dir in os.listdir(dst):
-        _index = dir.find("-")
-
-        if os.path.isdir('{}\{}'.format(dst, dir)) == False:
-            continue
-        if dir.find(".svn") >= 0:
-            continue
-
-        if _index > 0:
-            _dep_code = dir[:_index]
-            _dep_name = getDetpName(_dep_code)
-        # 压缩到 的目标文件路径
-        _dir = r'{}\{}'.format(zipPath, _dep_name)
-        if os.path.exists(_dir) is False:
-            os.makedirs(_dir)
-
-        with open('{}\{}'.format(dst, '项目备份保存清单.txt')) as f:
-            line = f.readline()
-            while line:
-                if line.startswith(dir):
-                    # str = line.split(':')
-                    f = open('{}\工程说明.txt'.format(_dir), 'a+')
-                    _index = line.find("-")
-                    if _index > 0 and (_index + 1) <= len(line):
-                        line = line[_index + 1:]
-                    f.write(line)
-                    f.close()
-                    break
-                else:
-                    line = f.readline()
-        # _dir = r'{}\{}'.format(_dir, os.path.basename(dir))
-        _zip_path = r'{}\{}'.format(dst, dir)
-        if _index > 0 and (_index + 1) <= len(dir):
-            filename = dir[_index + 1:]
-        # 进行打包加密压缩
-        zipo = ZipObj(_zip_path, pwd)
-        zipo.enCrypt(targetPath=_dir, fileName=filename, deleteSource=False)
-
-    # zipo.deCrypt()
+    pwd = '123'
+    _zip_path = '{}\{}'.format(os.getcwd(), 'zipObj.py')
+    _dir = os.getcwd()
+    filename = '压缩文件夹名称'
+    # 进行打包加密压缩
+    zipo = ZipObj(_zip_path, pwd)
+    zipo.enCrypt(targetPath=_dir, fileName=filename, deleteSource=False)
+    pass

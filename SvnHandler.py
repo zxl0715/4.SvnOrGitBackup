@@ -42,7 +42,7 @@ def pull(path):
         r.cleanup()
         r.update()
     except Exception as e:
-        loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，错误信息{3}'.format(3001, 'svn', path, e))
+        loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，路径可能不是为svn目录，错误信息{3}'.format(3001, 'svn', path, e))
         return False
     return True
 

@@ -37,6 +37,8 @@ class FileHandler:
                     backupRep.append([path[1], path[2], filePath, str[0], '{}\{}'.format(path[2], str[0])])
 
                     line = f.readline()
+            loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！', path[2])
+
         return backupRep
 
     # backupPath=<class 'list'>: [['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '产销差系统', 'D:\\testSVN\\产销差系统'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '智慧水务赋能管控平台', 'D:\\testSVN\\智慧水务赋能管控平台'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '一个项目工程', 'D:\\testSVN\\一个项目工程']]
@@ -89,6 +91,8 @@ class FileHandler:
 
             # shutil.move(sourcepath, tagerpath)
 
+            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器{}！', path[1])
+
     def copyFiles(self, sourceDir, targetDir):
         '''从源svn或git目录，备份文件到备份的svn目录下'''
         if sourceDir.find(".svn") > 0:
@@ -139,13 +143,16 @@ class FileHandler:
             if len(rel_filepaths) > 0:
                 # 添加到需要提交的列表
                 message = '备份系统自动提交，日期为:{0}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-                message += '{}ip地址为{}'.format(os.linesep, self.get_host_ip())
+                message += '{}备份服务器ip地址为：{}'.format(os.linesep, self.get_host_ip())
 
                 repo.cleanup()
                 repo.commit(message, rel_filepaths)
-            # SvnHandler.commit(tempPath)
+                loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backupServerPath))
+            else:
+                loggingHandler.logger.warning('***未有代码变化')
+
         except Exception as e:
-            loggingHandler.logger.exception('提交文件至备份svn服务出错 {0}'.format(backupServerPath))
+            loggingHandler.logger.exception('***提交文件至备份svn服务出错 {0}'.format(backupServerPath))
 
     def get_host_ip(self):
         '''获取本机ip'''
