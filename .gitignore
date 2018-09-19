@@ -3,3 +3,5 @@
 /appInstallPackage/
 /svn_or_git_backup.egg-info/
 /.idea/
+/build/
+/dist/
