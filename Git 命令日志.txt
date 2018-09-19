@@ -1,0 +1,223 @@
+﻿#提交
+"C:\Program Files\Git\bin\git.exe" commit -F "D:\testGit\.git\COMMITMESSAGE"
+[master (root-commit) ab7df3e] 第一次提交
+ 1 file changed, 1 insertion(+)
+ create mode 100644 "\346\265\213\350\257\225.txt"
+Done
+
+Press Enter or Esc to close console...
+
+#推送
+"C:\Program Files\Git\bin\git.exe" push --recurse-submodules=check --progress "origin" refs/heads/master:refs/heads/master
+Enumerating objects: 3, done.
+Counting objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 230 bytes | 230.00 KiB/s, done.
+Total 3 (delta 0), reused 0 (delta 0)
+To ssh://192.168.0.175:9022/BTF/test.git
+ * [new branch]      master -> master
+Done
+
+Press Enter or Esc to close console...
+
+
+
+#拉取
+"C:\Program Files\Git\bin\git.exe" fetch --progress "origin"
+
+
+Press Enter or Esc to close console...Done
+
+
+
+Microsoft Windows [版本 10.0.17134.228]
+(c) 2018 Microsoft Corporation。保留所有权利。
+
+C:\Users\zxl0715>d:
+
+D:\>cd d:/testGit             理办法
+
+d:\testGit>ls
+'ls' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+d:\testGit>ll
+'ll' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+d:\testGit>dir
+ 驱动器 D 中的卷是 worksapce
+ 卷的序列号是 000D-9C5A
+
+ d:\testGit 的目录
+
+2018/09/12  10:03    <DIR>          .
+2018/09/12  10:03    <DIR>          ..
+               0 个文件              0 字节
+               2 个目录 68,187,947,008 可用字节
+
+d:\testGit>ssh-keygen -t rsa -C "zhangxiaolin@gszh.cn"
+Generating public/private rsa key pair.
+Enter file in which to save the key (C:\Users\zxl0715/.ssh/id_rsa):
+C:\Users\zxl0715/.ssh/id_rsa already exists.
+Overwrite (y/n)?
+
+d:\testGit>ssh-keygen -t rsa -C "zhangxiaolin@gszh.cn"
+
+d:\testGit>git config --list
+core.symlinks=false
+core.autocrlf=true
+core.fscache=true
+color.diff=auto
+color.status=auto
+color.branch=auto
+color.interactive=true
+help.format=html
+rebase.autosquash=true
+http.sslcainfo=C:/Program Files/Git/mingw64/ssl/certs/ca-bundle.crt
+http.sslbackend=openssl
+diff.astextplain.textconv=astextplain
+filter.lfs.clean=git-lfs clean -- %f
+filter.lfs.smudge=git-lfs smudge -- %f
+filter.lfs.process=git-lfs filter-process
+filter.lfs.required=true
+credential.helper=manager
+user.name=zhangxiaolin
+user.email=zhangxiaolin@gszh.cn
+difftool.kdiff3.path=C:/Program Files/KDiff3/kdiff3.exe
+difftool.kdiff3.cmd="C:/Program Files/KDiff3/kdiff3.exe" "$LOCAL" "$REMOTE"
+core.editor="C:/Program Files (x86)/GitExtensions/GitExtensions.exe" fileeditor
+diff.guitool=kdiff3
+merge.tool=kdiff3
+mergetool.kdiff3.path=C:/Program Files/KDiff3/kdiff3.exe
+
+d:\testGit>ssh -T git@192.168.0.175:9022
+ssh: Could not resolve hostname 192.168.0.175:9022: \262\273\326\252\265\300\325\342\321\371\265\304\326\367\273\372\241\243
+
+d:\testGit>ssh -T git@192.168.0.175
+git@192.168.0.175's password:
+Permission denied, please try again.
+git@192.168.0.175's password:
+Permission denied, please try again.
+git@192.168.0.175's password:
+git@192.168.0.175: Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).
+
+d:\testGit>ssh-keygen -t rsa -C "zhangxiaolin@gszh.cn"
+Generating public/private rsa key pair.
+Enter file in which to save the key (C:\Users\zxl0715/.ssh/id_rsa):
+C:\Users\zxl0715/.ssh/id_rsa already exists.
+Overwrite (y/n)? y
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in C:\Users\zxl0715/.ssh/id_rsa.
+Your public key has been saved in C:\Users\zxl0715/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:SedNtRLSFPggSfpLSiIriBzgjQS894mKn04h1BBVv2o zhangxiaolin@gszh.cn
+The key's randomart image is:
++---[RSA 2048]----+
+|ooo... ....++..  |
+|..o   ..o o..o . |
+|.o..  .....oo .  |
+|=.o.   o.+ o..   |
+|.++.+ o.S . .    |
+|+..= =.o .       |
+|=.+  E. .        |
+|.+ ..            |
+| o+              |
++----[SHA256]-----+
+
+d:\testGit>ssh -T git@192.168.0.175:9022
+ssh: Could not resolve hostname 192.168.0.175:9022: \262\273\326\252\265\300\325\342\321\371\265\304\326\367\273\372\241\243
+
+d:\testGit>ssh -T git@192.168.0.175
+git@192.168.0.175's password:
+Permission denied, please try again.
+git@192.168.0.175's password:
+Permission denied, please try again.
+git@192.168.0.175's password:
+git@192.168.0.175: Permission denied (publickey,gssapi-keyex,gssapi-with-mic,password).
+
+d:\testGit>
+d:\testGit>git clone ssh://git@192.168.0.175:9022/BTF/test.git
+Cloning into 'test'...
+remote: Enumerating objects: 3, done.
+remote: Counting objects: 100% (3/3), done.
+remote: Total 3 (delta 0), reused 0 (delta 0)
+Receiving objects: 100% (3/3), done.
+
+d:\testGit>git pull
+fatal: not a git repository (or any of the parent directories): .git
+
+d:\testGit>ll
+'ll' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+d:\testGit>cd test
+
+d:\testGit\test>ll
+'ll' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+d:\testGit\test>ls
+'ls' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+d:\testGit\test>dir /a
+ 驱动器 D 中的卷是 worksapce
+ 卷的序列号是 000D-9C5A
+
+ d:\testGit\test 的目录
+
+2018/09/12  10:29    <DIR>          .
+2018/09/12  10:29    <DIR>          ..
+2018/09/12  10:29    <DIR>          .git
+2018/09/12  10:29                 3 测试.txt
+               1 个文件              3 字节
+               3 个目录 68,187,557,888 可用字节
+
+d:\testGit\test>dir /a *
+ 驱动器 D 中的卷是 worksapce
+ 卷的序列号是 000D-9C5A
+
+ d:\testGit\test 的目录
+
+2018/09/12  10:29    <DIR>          .
+2018/09/12  10:29    <DIR>          ..
+2018/09/12  10:29    <DIR>          .git
+2018/09/12  10:29                 3 测试.txt
+               1 个文件              3 字节
+               3 个目录 68,187,557,888 可用字节
+
+d:\testGit\test>git pull
+Already up to date.
+
+d:\testGit\test>git pull
+remote: Enumerating objects: 4, done.
+remote: Counting objects: 100% (4/4), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 1), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From ssh://192.168.0.175:9022/BTF/test
+   f6f90d2..932fc74  master     -> origin/master
+Updating f6f90d2..932fc74
+Fast-forward
+ README.md | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 README.md
+
+d:\testGit\test>git pull
+remote: Enumerating objects: 5, done.
+remote: Counting objects: 100% (5/5), done.
+remote: Compressing objects: 100% (2/2), done.
+remote: Total 3 (delta 1), reused 0 (delta 0)
+Unpacking objects: 100% (3/3), done.
+From ssh://192.168.0.175:9022/BTF/test
+   932fc74..217b6f8  master     -> origin/master
+Updating 932fc74..217b6f8
+Fast-forward
+ README.md | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+d:\testGit\test>
+
+
+

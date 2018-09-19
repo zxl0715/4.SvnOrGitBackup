@@ -1,0 +1,233 @@
+Microsoft Windows [版本 10.0.17134.228]
+(c) 2018 Microsoft Corporation。保留所有权利。
+
+C:\Users\zxl0715>d:
+
+D:\>cd D:\testSVN
+
+D:\testSVN>svn info
+Path: .
+Working Copy Root Path: D:\testSVN
+URL: https://zxl0715:8443/svn/testSVN
+Relative URL: ^/
+Repository Root: https://zxl0715:8443/svn/testSVN
+Repository UUID: 25fa20d6-53ad-f74c-ba72-b59bf6a525da
+Revision: 2
+Node Kind: directory
+Schedule: normal
+Last Changed Author: VisualSVN Server
+Last Changed Rev: 2
+Last Changed Date: 2018-09-11 14:12:26 +0800 (周二, 11 9月 2018)
+
+
+D:\testSVN>svn add
+svn: E205001: Try 'svn help add' for more information
+svn: E205001: Not enough arguments provided
+
+D:\testSVN>snv add *
+'snv' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\testSVN>svn add *
+svn: Skipping argument: E200025: '.svn' ends in a reserved name
+svn: warning: W150002: 'D:\testSVN\test.txt' is already under version control
+svn: warning: W150002: 'D:\testSVN\testFolder' is already under version control
+svn: E200009: Could not add all targets because some targets are already versioned
+svn: E200009: Illegal target for the requested operation
+
+D:\testSVN>svn add 项目备份保存清单.txt
+A  (bin)  项目备份保存清单.txt
+
+D:\testSVN>svn commit -m '' 项目备份保存清单.txt
+Adding  (bin)  项目备份保存清单.txt
+Transmitting file data .done
+Committing transaction...
+Committed revision 3.
+
+D:\testSVN>svn delete test.txt
+D         test.txt
+
+D:\testSVN>svn commit -m '删除 test.txt文件'
+svn: E200009: Commit failed (details follow):
+svn: E200009: 'D:\testSVN\test.txt文件'' is not under version control
+
+D:\testSVN>svn commit -m '删除 test.txt文件' test.txt
+svn: E200009: Commit failed (details follow):
+svn: E200009: 'D:\testSVN\test.txt文件'' is not under version control
+
+D:\testSVN>svn ci -m''
+Deleting       test.txt
+Committing transaction...
+Committed revision 4.
+
+D:\testSVN>svn update
+Updating '.':
+At revision 4.
+
+D:\testSVN>svn log
+------------------------------------------------------------------------
+r4 | test | 2018-09-11 16:13:36 +0800 (周二, 11 9月 2018) | 1 line
+
+''
+------------------------------------------------------------------------
+r3 | test | 2018-09-11 16:10:11 +0800 (周二, 11 9月 2018) | 1 line
+
+''
+------------------------------------------------------------------------
+r2 | VisualSVN Server | 2018-09-11 14:12:26 +0800 (周二, 11 9月 2018) | 1 line
+
+Created folder 'testFolder'.
+------------------------------------------------------------------------
+r1 | test | 2018-09-11 14:10:58 +0800 (周二, 11 9月 2018) | 2 lines
+
+test说明 第一次提交
+
+------------------------------------------------------------------------
+
+D:\testSVN>Commit to https://zxl0715:8443/svn/testSVN
+'Commit' 不是内部或外部命令，也不是可运行的程序
+或批处理文件。
+
+D:\testSVN>svn Commit to https://zxl0715:8443/svn/testSVN
+Unknown subcommand: 'Commit'
+Type 'svn help' for usage.
+
+D:\testSVN>svn commit to https://zxl0715:8443/svn/testSVN
+svn: E205000: Try 'svn help commit' for more information
+svn: E205000: Commit targets must be local paths
+svn: E205000: 'https://zxl0715:8443/svn/testSVN' is not a local path
+
+D:\testSVN>svn import testFolder https://zxl0715:8443/svn/testBackupSVN -m ''
+
+D:\testSVN>svn import testFolder https://zxl0715:8443/svn/testBackupSVN -m '测试import'
+
+D:\testSVN>svn import 项目备份保存清单.txt https://zxl0715:8443/svn/testBackupSVN -m ''
+svn: E145000: New entry name required when importing a file
+
+D:\testSVN>svn import testFolder https://zxl0715:8443/svn/testBackupSVN/Folder -m '测试import'
+Committing transaction...
+Committed revision 2.
+
+D:\testSVN>svn import * https://zxl0715:8443/svn/testBackupSVN/Folder -m '测试import'
+svn: Skipping argument: E200025: '.svn' ends in a reserved name
+
+D:\testSVN>svn import testFolder testFolder https://zxl0715:8443/svn/testBackupSVN   -m''
+svn: E205000: Try 'svn help import' for more information
+svn: E205000: Too many arguments to import command
+
+D:\testSVN>svn import testFolder testFolder https://zxl0715:8443/svn/testBackupSVN   -m ''
+svn: E205000: Try 'svn help import' for more information
+svn: E205000: Too many arguments to import command
+
+D:\testSVN>svn import testFolder testFolder https://zxl0715:8443/svn/testBackupSVN/test   -m ''
+svn: E205000: Try 'svn help import' for more information
+svn: E205000: Too many arguments to import command
+
+D:\testSVN>svn help import
+import: Commit an unversioned file or tree into the repository.
+usage: import [PATH] URL
+
+  Recursively commit a copy of PATH to URL.
+  If PATH is omitted '.' is assumed.
+  Parent directories are created as necessary in the repository.
+  If PATH is a directory, the contents of the directory are added
+  directly under URL.
+  Unversionable items such as device files and pipes are ignored
+  if --force is specified.
+
+Valid options:
+  -q [--quiet]             : print nothing, or only summary information
+  -N [--non-recursive]     : obsolete; try --depth=files or --depth=immediates
+  --depth ARG              : limit operation by depth ARG ('empty', 'files',
+                             'immediates', or 'infinity')
+  --auto-props             : enable automatic properties
+  --force                  : force operation to run
+  --no-auto-props          : disable automatic properties
+  -m [--message] ARG       : specify log message ARG
+  -F [--file] ARG          : read log message from file ARG
+  --force-log              : force validity of log message source
+  --editor-cmd ARG         : use ARG as external editor
+  --encoding ARG           : treat value as being in charset encoding ARG
+  --with-revprop ARG       : set revision property ARG in new revision
+                             using the name[=value] format
+  --no-ignore              : disregard default and svn:ignore and
+                             svn:global-ignores property ignores
+
+Global options:
+  --username ARG           : specify a username ARG
+  --password ARG           : specify a password ARG (caution: on many operating
+                             systems, other users will be able to see this)
+  --password-from-stdin    : read password from stdin
+  --no-auth-cache          : do not cache authentication tokens
+  --non-interactive        : do no interactive prompting (default is to prompt
+                             only if standard input is a terminal device)
+  --force-interactive      : do interactive prompting even if standard input
+                             is not a terminal device
+  --trust-server-cert      : deprecated; same as
+                             --trust-server-cert-failures=unknown-ca
+  --trust-server-cert-failures ARG : with --non-interactive, accept SSL server
+                             certificates with failures; ARG is comma-separated
+                             list of 'unknown-ca' (Unknown Authority),
+                             'cn-mismatch' (Hostname mismatch), 'expired'
+                             (Expired certificate), 'not-yet-valid' (Not yet
+                             valid certificate) and 'other' (all other not
+                             separately classified certificate errors).
+  --config-dir ARG         : read user configuration files from directory ARG
+  --config-option ARG      : set user configuration option in the format:
+                                 FILE:SECTION:OPTION=[VALUE]
+                             For example:
+                                 servers:global:http-library=serf
+
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/test   -m ''
+Skipped '.svn\.svn'
+Adding         testFolder
+Adding  (bin)  项目备份保存清单.txt
+Committing transaction...
+Committed revision 4.
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m ''
+Skipped '.svn\.svn'
+Adding         testFolder
+Adding  (bin)  项目备份保存清单.txt
+Committing transaction...
+Committed revision 6.
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '版本备份'
+Skipped '.svn\.svn'
+svn: E160020: Path already exists, path '/testFolder'
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '直接添加到版本库'
+Skipped '.svn\.svn'
+svn: E160020: Path already exists, path '/testFolder'
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '直接添加到版本库' --force
+Skipped '.svn\.svn'
+svn: E160020: Path already exists, path '/testFolder'
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '直接添加到版本库' --force
+Skipped '.svn\.svn'
+Adding         testFolder
+svn: E160020: File '项目备份保存清单.txt' already exists
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '直接添加到版本库' --force
+Skipped '.svn\.svn'
+Adding         testFolder
+Adding  (bin)  项目备份保存清单.txt
+Committing transaction...
+Committed revision 9.
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '直接添加到版本库' --force
+Skipped '.svn\.svn'
+svn: E160020: Path already exists, path '/testFolder'
+
+D:\testSVN>svn import ./ https://zxl0715:8443/svn/testBackupSVN/   -m '直接添加到版本库' --force
+Skipped '.svn\.svn'
+Adding         testFolder
+Adding         产销差系统
+Adding         智慧水务赋能管控平台
+Adding  (bin)  项目备份保存清单.txt
+Committing transaction...
+Committed revision 11.
+
+D:\testSVN>

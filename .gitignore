@@ -1,0 +1,5 @@
+/venv
+/__pycache__/
+/appInstallPackage/
+/svn_or_git_backup.egg-info/
+/.idea/
