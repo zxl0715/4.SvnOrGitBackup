@@ -41,10 +41,17 @@ class FileHandler:
 
         return backupRep
 
+    def jedgeProjectStandard(self, path, projectStandardlist):
+        for fileOrFloder in projectStandardlist:
+            if os.path.exists('{}\{}'.format(path, fileOrFloder)) == False:
+                loggingHandler.logger.warning(
+                    '违反【源文件存放规范】在{}目录下 {} 文件或目录不存在，请检查！'.format(path, fileOrFloder))
+
     # backupPath=<class 'list'>: [['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '产销差系统', 'D:\\testSVN\\产销差系统'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '智慧水务赋能管控平台', 'D:\\testSVN\\智慧水务赋能管控平台'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '一个项目工程', 'D:\\testSVN\\一个项目工程']]
     def backupRepository(self, backupPath=[]):
         '''执行需要备份的svn或git代码库'''
         backupServerPath = configHandler.getBackupPath()
+        projectStandard = configHandler.getProjectStandard()
         fileName = '项目备份保存清单.txt'
         fileProject = '{}\{}'.format(backupServerPath, fileName)
         if os.path.exists(backupServerPath) == False:
@@ -59,8 +66,25 @@ class FileHandler:
             filePath = path[2]
             # 检查根目录下是否有 项目备份保存清单.txt 文件
             if os.path.isfile(filePath) == False:
-                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(filePath))
+                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path[1],filePath))
                 continue
+
+            if os.path.exists(path[4]):
+                #检查工程项目或单个项目 是否违法【源文件存放规范】
+                _rmFile = '{}\{}'.format(path[4], '目录说明.txt')
+                if os.path.exists(_rmFile):
+                    with open(_rmFile) as f:
+                        line = f.readline()
+                        while line:
+                            # print(line)
+                            str = line.split(':')
+                            # 目录为工程项目
+                            if line.find(':') > 0 & os.path.exists('{}\{}'.format(path[4], str[0], )):
+                                self.jedgeProjectStandard('{}\{}'.format(path[4], str[0]), projectStandard)
+                            else:  # 为单个项目
+                                self.jedgeProjectStandard(path[4], projectStandard)
+                            line = f.readline()
+
             # 从 项目备份保存清单文件里，读取需要备份的工程项目，并写入到 备份目录
             with open(filePath) as f:
                 line = f.readline()

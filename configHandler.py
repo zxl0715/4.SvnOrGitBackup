@@ -53,6 +53,14 @@ def getDdepartment():
     return valueList
 
 
+def getProjectStandard():
+    '''项目文件规范，需要包含以下文件夹或文件(目录根目录为项目的根目录)，多个内容以;分隔符连接。，例如：scripts;docs\docs;目录说明.txt'''
+    fileOrFolder = cf.get('ProjectStandard', 'FileOrFolder')
+    fileOrFolderList = fileOrFolder.split(';')
+
+    return fileOrFolderList
+
+
 def getTimedTask():
     '''设置定时任务时间'''
     sections = cf.sections()
