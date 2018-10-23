@@ -1,11 +1,12 @@
 import configparser
 import sys
 import loggingHandler
+from collections import Iterable
 
 cf = configparser.ConfigParser()
 '''conf.ini  （ini，conf）'''
 try:
-    cf.read('app.conf', encoding="utf-8-sig")
+    cf.read('conf/app.conf', encoding="utf-8-sig")
 except Exception as e:
     loggingHandler.logger.exception('错误代码：10001 读取配置文件失败，请检查应用程序配置文件信息！')
 
@@ -93,5 +94,10 @@ def getSvnOrGitPath():
             depCode = cf.get(section, 'DepartmentCode')
             # svn或git 本地路径
             path = cf.get(section, 'LocalPath')
-            valueList.append([type, depCode, path])
+            mapping_file_path =None
+            if cf.has_option(section,'MappingFilePath') == True:
+                mapping_file_path = cf.get(section, 'MappingFilePath')
+
+            # valueList.append([type, depCode, path])
+            valueList.append({'type': type, 'depCode': depCode, 'path': path, 'MappingFilePath': mapping_file_path})
     return valueList

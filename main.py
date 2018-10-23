@@ -33,14 +33,14 @@ def backup_svn_git():
     for map in paths:
         '''使用多进程执行'''
         # pool = multiprocessing.Process(target=pull_code, args=(svnOrGit,path,))
-        pool.apply_async(pull_code, args=(map[0], map[2],))
-        loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(map[0], map[2]))
+        pool.apply_async(pull_code, args=(map['type'], map['path'],map['MappingFilePath']))
+        loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(map['type'], map['path']))
     pool.close()
     pool.join()
     loggingHandler.logger.info('多进程任务执行代码库同步至本地库完成,共计 {} 个任务!'.format(len(paths)))
 
 
-def pull_code(svnOrGit='svn', path=''):
+def pull_code(svnOrGit='svn', path='',MappingFilePath=None):
     '''拉取代码'''
     status = False
     if os.path.exists(path) == False:
@@ -50,7 +50,7 @@ def pull_code(svnOrGit='svn', path=''):
         if svnOrGit == 'svn':
             status = SvnHandler.pull(path)
         else:
-            status = GitHandler.pull(path)
+            status = GitHandler.pullAndMapping(path,MappingFilePath)
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svnOrGit, path, e))
 
@@ -211,7 +211,7 @@ def backupCode(isZip=False):
     loggingHandler.logger.info('结束任务{}'.format(os.linesep))
 
 
-if __name__ == '__main__':
+def main():
     multiprocessing.freeze_support()  # 解决pyinstaller多进程打包问题
     loggingHandler.logger.info('{}————————————————————————————————————————————————{}'.format(os.linesep, os.linesep))
     loggingHandler.logger.info('启动程序运行！')
@@ -222,7 +222,8 @@ if __name__ == '__main__':
     if firstStartup:
         loggingHandler.logger.info('程序启动一次运行开始！')
         backupCode(True)
-        loggingHandler.logger.info('程序启动一次运行结束！')
+        loggingHandler.logger.info('程序启动一次运行结束！{}'.format(os.linesep))
+
 
     loggingHandler.logger.info('开始启动定时任务……')
     # 执行定时任务
@@ -230,3 +231,7 @@ if __name__ == '__main__':
     loggingHandler.logger.info('結束启动定时任务')
 
     loggingHandler.logger.info('结束程序运行！')
+
+
+if __name__ == '__main__':
+    main()
