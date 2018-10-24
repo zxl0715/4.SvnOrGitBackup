@@ -22,11 +22,11 @@ class FileHandler:
         fileName = '项目备份保存清单.txt'
         backupRep = []
         for path in paths:
-            if path[2].strip() == '':
+            if path['path'].strip() == '':
                 continue
-            filePath = '{}\{}'.format(path[2], fileName)
+            filePath = '{}\{}'.format(path['path'], fileName)
             if os.path.isfile(filePath) == False:
-                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path[2], fileName))
+                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path['path'], fileName))
                 continue
             with open(filePath) as f:
                 line = f.readline()
@@ -34,10 +34,10 @@ class FileHandler:
                     # print(line)
                     str = line.split(':')
                     # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
-                    backupRep.append([path[1], path[2], filePath, str[0], '{}\{}'.format(path[2], str[0])])
+                    backupRep.append([path['depCode'], path['path'], filePath, str[0], '{}\{}'.format(path['path'], str[0])])
 
                     line = f.readline()
-            loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！', path[2])
+            loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！', path['path'])
 
         return backupRep
 

@@ -9,11 +9,11 @@ def pullAndMapping(path, mapping_file_path):
     拉取目标GIT，并执行映射文件内容
     :param path:
     :param mapping_file_path: 映射文件路径
-    :return:
+    :return:返回True or False
     '''
     status = pull(path)
     if status == False:
-        return
+        return status
         # 设置映射文件生成的目标路径
     mapping_file_path = '{}\{}'.format(path, mapping_file_path)
     if os.path.exists(mapping_file_path) == True:
@@ -27,9 +27,11 @@ def pullAndMapping(path, mapping_file_path):
             loggingHandler.logger.exception('Git版本库路径：{}，拉取应映射文件项目失败，映射路径：{}。'.format(path, mapping_file_path))
 
         loggingHandler.logger.info('Git版本库路径：{}，拉取应映射文件项目成功，映射路径：{}。'.format(path, mapping_file_path))
-
+        status = True
     else:
         loggingHandler.logger.info('Git版本库路径：{}，找不到对应映射文件路径：{}。'.format(path, mapping_file_path))
+        status = False
+    return status
 
 
 def pull(path):
@@ -42,7 +44,7 @@ def pull(path):
         # 创建版本库对象
         repo = git.Repo(path)
         # 版本库是否为空版本库
-        if repo.bare is False:
+        if repo.bare is True:
             loggingHandler.logger.info('Git 路径{}为空版本库。'.format(path))
         # 拉取最新版本
         repo.git.checkout('.')
@@ -121,7 +123,7 @@ def get_mapping_Git(root_path, git_profile_path):
 
             f.writelines('{}:{}{}'.format(name_git, line, '\n'))
             print(list[0])
-            # continue
+            continue
             if os.path.exists(path) == False:
                 repo = git.Repo.init(path, True)
                 # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
