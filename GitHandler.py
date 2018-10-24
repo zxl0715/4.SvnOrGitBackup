@@ -14,6 +14,7 @@ def pullAndMapping(path, mapping_file_path):
     status = pull(path)
     if status == False:
         return status
+
         # 设置映射文件生成的目标路径
     mapping_file_path = '{}\{}'.format(path, mapping_file_path)
     if os.path.exists(mapping_file_path) == True:
@@ -25,12 +26,13 @@ def pullAndMapping(path, mapping_file_path):
             get_mapping_Git(path_mapping, mapping_file_path)
         except Exception as e:
             loggingHandler.logger.exception('Git版本库路径：{}，拉取应映射文件项目失败，映射路径：{}。'.format(path, mapping_file_path))
+            return status
 
         loggingHandler.logger.info('Git版本库路径：{}，拉取应映射文件项目成功，映射路径：{}。'.format(path, mapping_file_path))
-        status = True
+        # status = True
     else:
         loggingHandler.logger.info('Git版本库路径：{}，找不到对应映射文件路径：{}。'.format(path, mapping_file_path))
-        status = False
+        # status = False
     return status
 
 
@@ -123,7 +125,7 @@ def get_mapping_Git(root_path, git_profile_path):
 
             f.writelines('{}:{}{}'.format(name_git, line, '\n'))
             print(list[0])
-            #continue
+            # continue
             if os.path.exists(path) == False:
                 repo = git.Repo.init(path, True)
                 # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
@@ -136,7 +138,7 @@ def get_mapping_Git(root_path, git_profile_path):
             # 获取默认版本库 origin
             remote = repo.remote()
 
-            #remote.fetch()  # fetch,pull and push from and to the remote
+            # remote.fetch()  # fetch,pull and push from and to the remote
             # repo.heads.master.checkout()  # checkout the branch using git-checkout
 
             # # 从远程版本库拉取分支
