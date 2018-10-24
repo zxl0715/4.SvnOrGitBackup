@@ -33,14 +33,14 @@ def backup_svn_git():
     for map in paths:
         '''使用多进程执行'''
         # pool = multiprocessing.Process(target=pull_code, args=(svnOrGit,path,))
-        pool.apply_async(pull_code, args=(map['type'], map['path'],map['MappingFilePath']))
+        pool.apply_async(pull_code, args=(map['type'], map['path'], map['MappingFilePath']))
         loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(map['type'], map['path']))
     pool.close()
     pool.join()
     loggingHandler.logger.info('多进程任务执行代码库同步至本地库完成,共计 {} 个任务!'.format(len(paths)))
 
 
-def pull_code(svnOrGit='svn', path='',MappingFilePath=None):
+def pull_code(svnOrGit='svn', path='', MappingFilePath=None):
     '''拉取代码'''
     status = False
     if os.path.exists(path) == False:
@@ -50,7 +50,7 @@ def pull_code(svnOrGit='svn', path='',MappingFilePath=None):
         if svnOrGit == 'svn':
             status = SvnHandler.pull(path)
         else:
-            status = GitHandler.pullAndMapping(path,MappingFilePath)
+            status = GitHandler.pullAndMapping(path, MappingFilePath)
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svnOrGit, path, e))
 
@@ -192,13 +192,13 @@ def backupCode(isZip=False):
     try:
         # 拉取代码
         loggingHandler.logger.debug('backup_svn_git 1')
-        #todo
-        # backup_svn_git()
+        # todo
+        backup_svn_git()
         loggingHandler.logger.debug('backup_svn_git 2')
         loggingHandler.logger.debug('backup_file_svn 1')
         # 备份文件至svn备份服务器
         # todo
-        # backup_file_svn()
+        backup_file_svn()
         loggingHandler.logger.debug('backup_file_svn 2')
 
         # 是否启用打包归档
@@ -225,7 +225,6 @@ def main():
         loggingHandler.logger.info('程序启动一次运行开始！')
         backupCode(True)
         loggingHandler.logger.info('程序启动一次运行结束！{}'.format(os.linesep))
-
 
     loggingHandler.logger.info('开始启动定时任务……')
     # 执行定时任务
