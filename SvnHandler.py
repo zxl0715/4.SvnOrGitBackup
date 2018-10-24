@@ -41,18 +41,26 @@ def pull(path):
         # 用来清理locked，防止更新时失败
         r.cleanup()
         r.update()
+
+    except UnicodeDecodeError as e:
+        loggingHandler.logger.warning('拉取{}路径为：{}信息{}'.format('svn', path, e))
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，路径可能不是为svn目录，错误信息{3}'.format(3001, 'svn', path, e))
         return False
     return True
 
+
 def add(path):
     r = svn.local.LocalClient(path)
     # 用来清理locked，防止更新时失败
     r.add(path)
+
+
 def commit(path):
     r = svn.local.LocalClient(path)
     r.commit()
+
+
 if __name__ == '__main__':
     url = u'https://zxl0715:8443/svn/testSVN/'
     path = r'D:\testSvnPython'

@@ -123,7 +123,7 @@ def get_mapping_Git(root_path, git_profile_path):
 
             f.writelines('{}:{}{}'.format(name_git, line, '\n'))
             print(list[0])
-            continue
+            #continue
             if os.path.exists(path) == False:
                 repo = git.Repo.init(path, True)
                 # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
@@ -136,7 +136,7 @@ def get_mapping_Git(root_path, git_profile_path):
             # 获取默认版本库 origin
             remote = repo.remote()
 
-            # remote.fetch()  # fetch,pull and push from and to the remote
+            #remote.fetch()  # fetch,pull and push from and to the remote
             # repo.heads.master.checkout()  # checkout the branch using git-checkout
 
             # # 从远程版本库拉取分支

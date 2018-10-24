@@ -24,19 +24,28 @@ class FileHandler:
         for path in paths:
             if path['path'].strip() == '':
                 continue
-            filePath = '{}\{}'.format(path['path'], fileName)
-            if os.path.isfile(filePath) == False:
-                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path['path'], fileName))
+            # 备份文件
+            backup_file_path = '{}\{}'.format(path['path'], fileName)
+            # 不存在备份文件的跳过（需要备份的库通过备份文件控制）
+            if os.path.isfile(backup_file_path) == False:
+                loggingHandler.logger.warning(
+                    '在{}目录下 {} 文件不存在，请检查，将自动备份{}该文件夹下全部资源！'.format(path['path'], fileName, path['path']))
+                # backupRep.append(
+                #     [path['depCode'], path['path'], '','', '{}\{}'.format(path['path'], '')])
                 continue
-            with open(filePath) as f:
-                line = f.readline()
-                while line:
-                    # print(line)
-                    str = line.split(':')
-                    # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
-                    backupRep.append([path['depCode'], path['path'], filePath, str[0], '{}\{}'.format(path['path'], str[0])])
-
+            else:
+                with open(backup_file_path) as f:
                     line = f.readline()
+                    while line:
+                        # print(line)
+                        str = line.split(':')
+                        # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
+                        backupRep.append(
+                            {'depCode': path['depCode'], 'RepositoryPath': path['path'],
+                             'BackupFilePath': backup_file_path, 'RepositoryName': str[0],
+                             'BackupRepository': '{}\{}'.format(os.path.dirname(path['path']), str[0])})
+
+                        line = f.readline()
             loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！', path['path'])
 
         return backupRep
@@ -45,69 +54,78 @@ class FileHandler:
         for fileOrFloder in projectStandardlist:
             if os.path.exists('{}\{}'.format(path, fileOrFloder)) == False:
                 loggingHandler.logger.warning(
-                    '违反【源文件存放规范】在{}目录下 {} 文件或目录不存在，请检查！'.format(path, fileOrFloder))
+                    '违反【源文件存放规范】在{} 目录下 {} 文件或目录不存在，请检查！'.format(path, fileOrFloder))
 
     # backupPath=<class 'list'>: [['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '产销差系统', 'D:\\testSVN\\产销差系统'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '智慧水务赋能管控平台', 'D:\\testSVN\\智慧水务赋能管控平台'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '一个项目工程', 'D:\\testSVN\\一个项目工程']]
     def backupRepository(self, backupPath=[]):
-        '''执行需要备份的svn或git代码库'''
+        '''从源svn或git代码库复制到svn备份库的'''
+        # svn备份仓库地址
         backupServerPath = configHandler.getBackupPath()
+        # 目录校验
         projectStandard = configHandler.getProjectStandard()
         fileName = '项目备份保存清单.txt'
-        fileProject = '{}\{}'.format(backupServerPath, fileName)
+        inventory_file = '{}\{}'.format(backupServerPath, fileName)
         if os.path.exists(backupServerPath) == False:
             loggingHandler.logger.warning('备份服务器svn路径不存在{}，请检查！', backupServerPath)
+        # 清理svn备份仓库的项目备份保存清单文件
+        if os.path.exists(inventory_file) == True:
+            os.remove(inventory_file)
 
-        if os.path.exists(fileProject) == True:
-            os.remove(fileProject)
         for path in backupPath:
 
-            if path[2].strip() == '':
+            if path['BackupFilePath'].strip() == '':
                 continue
-            filePath = path[2]
+            filePath = path['BackupFilePath']
             # 检查根目录下是否有 项目备份保存清单.txt 文件
             if os.path.isfile(filePath) == False:
-                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path[1],filePath))
+                loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path['RepositoryPath'], filePath))
                 continue
 
-            if os.path.exists(path[4]):
-                #检查工程项目或单个项目 是否违法【源文件存放规范】
-                _rmFile = '{}\{}'.format(path[4], '目录说明.txt')
+            if os.path.exists(path['BackupRepository']):
+                # 检查工程项目或单个项目 是否违法【源文件存放规范】
+                _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
                 if os.path.exists(_rmFile):
-                    with open(_rmFile) as f:
+                    with open(_rmFile, encoding="utf-8-sig") as f:
                         line = f.readline()
                         while line:
                             # print(line)
                             str = line.split(':')
                             # 目录为工程项目
-                            if line.find(':') > 0 & os.path.exists('{}\{}'.format(path[4], str[0], )):
-                                self.jedgeProjectStandard('{}\{}'.format(path[4], str[0]), projectStandard)
+                            if line.find(':') > 0 & os.path.exists('{}\{}'.format(path['BackupRepository'], str[0])):
+                                self.jedgeProjectStandard('{}\{}'.format(path['BackupRepository'], str[0]),
+                                                          projectStandard)
                             else:  # 为单个项目
-                                self.jedgeProjectStandard(path[4], projectStandard)
+                                self.jedgeProjectStandard(path['BackupRepository'], projectStandard)
                             line = f.readline()
 
-            # 从 项目备份保存清单文件里，读取需要备份的工程项目，并写入到 备份目录
+            # 从 项目备份保存清单文件里，读取需要备份的工程项目信息，并写入到 备份目录
             with open(filePath) as f:
                 line = f.readline()
                 while line:
                     # print(line)
                     str = line.split(':')
-                    if str[0] == path[3]:
-                        f = open(fileProject, 'a+')
-                        f.write('{}-{}'.format(path[0], line))
+                    if str[0] == path['RepositoryName']:
+                        f = open(inventory_file, 'a+')
+                        f.writelines('{}-{}'.format(path['depCode'], line))
                         f.close()
                         break
                     else:
                         line = f.readline()
-            # 进行源码文本备份（备份到目标文件夹）
-            sourcepath = path[4]
-            tagerpath = '{}\{}-{}'.format(backupServerPath, path[0], os.path.basename(path[4]))
+            # 项目备份来源位置
+            sourcepath = path['BackupRepository']
+            # 项目备份目标位置（备份到目标文件夹）
+            tagerpath = '{}\{}-{}'.format(backupServerPath, path['depCode'], os.path.basename(path['BackupRepository']))
+
+            if 1 == 2:
+                # 方案二
+                # todo
+                if os.path.exists(tagerpath):
+                    shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
+                # 进行复制（忽略.svn和.git文件夹）
+                shutil.copytree(sourcepath, tagerpath, ignore=shutil.ignore_patterns('.svn', '.git', '.gitignore'))
+
             # 方案一
             # self.copyFiles(sourcepath,tagerpath)
-
-            # 方案二
-            if os.path.exists(tagerpath):
-                shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
-            shutil.copytree(sourcepath, tagerpath)
 
             # shutil.copytree(path[4], '{}\{}'.format(backupServerPath, os.path.basename(path[4])), symlinks=False,
             #                 ignore=shutil.ignore_patterns(".svn"), copy_function=shutil.copy2,
@@ -115,7 +133,7 @@ class FileHandler:
 
             # shutil.move(sourcepath, tagerpath)
 
-            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器{}！', path[1])
+            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器{}！', path['RepositoryPath'])
 
     def copyFiles(self, sourceDir, targetDir):
         '''从源svn或git目录，备份文件到备份的svn目录下'''

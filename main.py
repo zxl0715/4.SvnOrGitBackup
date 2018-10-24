@@ -192,11 +192,13 @@ def backupCode(isZip=False):
     try:
         # 拉取代码
         loggingHandler.logger.debug('backup_svn_git 1')
-        backup_svn_git()
+        #todo
+        # backup_svn_git()
         loggingHandler.logger.debug('backup_svn_git 2')
         loggingHandler.logger.debug('backup_file_svn 1')
         # 备份文件至svn备份服务器
-        backup_file_svn()
+        # todo
+        # backup_file_svn()
         loggingHandler.logger.debug('backup_file_svn 2')
 
         # 是否启用打包归档
