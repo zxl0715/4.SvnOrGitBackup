@@ -116,13 +116,19 @@ class FileHandler:
             # 项目备份目标位置（备份到目标文件夹）
             tagerpath = '{}\{}-{}'.format(backupServerPath, path['depCode'], os.path.basename(path['BackupRepository']))
 
-
             # 方案二
             # todo
-            if os.path.exists(tagerpath):
-                shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
-            # 进行复制（忽略.svn和.git文件夹）
-            shutil.copytree(sourcepath, tagerpath, ignore=shutil.ignore_patterns('.svn', '.git', '.gitignore'))
+            try:
+                if os.path.exists(tagerpath):
+                    shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
+            except Exception as e:
+                loggingHandler.logger.exception('删除文件失败，路径为：{0}'.format(tagerpath))
+
+            try:
+                # 进行复制（忽略.svn和.git文件夹）
+                shutil.copytree(sourcepath, tagerpath, ignore=shutil.ignore_patterns('.svn', '.git', '.gitignore'))
+            except Exception as e:
+                loggingHandler.logger.exception('从{} 复制到 {}失败{0}'.format(sourcepath, tagerpath))
 
             # 方案一
             # self.copyFiles(sourcepath,tagerpath)
