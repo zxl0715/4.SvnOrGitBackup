@@ -28,24 +28,30 @@ class FileHandler:
             backup_file_path = '{}\{}'.format(path['path'], fileName)
             # 不存在备份文件的跳过（需要备份的库通过备份文件控制）
             if os.path.isfile(backup_file_path) == False:
-                loggingHandler.logger.warning(
-                    '在{}目录下 {} 文件不存在，请检查，将自动备份{}该文件夹下全部资源！'.format(path['path'], fileName, path['path']))
+                # loggingHandler.logger.warning(
+                #     '在{}目录下 {} 文件不存在，请检查！'.format(path['path'], fileName))
                 # backupRep.append(
                 #     [path['depCode'], path['path'], '','', '{}\{}'.format(path['path'], '')])
                 continue
             else:
-                with open(backup_file_path, encoding="GBK") as f:
-                    line = f.readline()
-                    while line:
-                        # print(line)
-                        str = line.split(':')
-                        # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
-                        backupRep.append(
-                            {'depCode': path['depCode'], 'RepositoryPath': path['path'],
-                             'BackupFilePath': backup_file_path, 'RepositoryName': str[0],
-                             'BackupRepository': '{}\{}'.format(os.path.dirname(path['path']), str[0])})
+                try:
+
+                    with open(backup_file_path, encoding="utf-8") as f:
+                        loggingHandler.logger.info('文件编码为：{}！'.format(f.encoding))
 
                         line = f.readline()
+                        while line:
+                            # print(line)
+                            str = line.split(':')
+                            # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
+                            backupRep.append(
+                                {'depCode': path['depCode'], 'RepositoryPath': path['path'],
+                                 'BackupFilePath': backup_file_path, 'RepositoryName': str[0],
+                                 'BackupRepository': '{}\{}'.format(os.path.dirname(path['path']), str[0])})
+
+                            line = f.readline()
+                except Exception as e:
+                    loggingHandler.logger.exception('读取“项目备份保存清单”文件失败，路径为：{}'.format(backup_file_path))
             loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！'.format(path['path']))
 
         return backupRep
@@ -86,7 +92,7 @@ class FileHandler:
                     # 检查工程项目或单个项目 是否违法【源文件存放规范】
                     _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
                     if os.path.exists(_rmFile):
-                        with open(_rmFile, encoding="GBK") as f:
+                        with open(_rmFile, encoding="UTF-8-sig") as f:
                             line = f.readline()
                             while line:
                                 # print(line)
@@ -104,13 +110,13 @@ class FileHandler:
                         '检查工程项目或单个项目 是否违法【源文件存放规范】，路径为：{0}'.format(path['BackupRepository']))
             try:
                 # 从 项目备份保存清单文件里，读取需要备份的工程项目信息，并写入到 备份目录
-                with open(filePath, encoding="GBK") as f:
+                with open(filePath, encoding="UTF-8-sig") as f:
                     line = f.readline()
                     while line:
                         # print(line)
                         str = line.split(':')
                         if str[0] == path['RepositoryName']:
-                            f = open(inventory_file, 'a+', encoding="GBK")
+                            f = open(inventory_file, 'a+', encoding="UTF-8-sig")
                             f.writelines('{}-{}'.format(path['depCode'], line))
                             f.close()
                             break

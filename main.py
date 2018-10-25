@@ -53,8 +53,7 @@ def pull_code(svnOrGit='svn', path='', MappingFilePath=None):
             status = SvnHandler.pull(path)
         else:
             # todo
-            pass
-            # status = GitHandler.pullAndMapping(path, MappingFilePath)
+            status = GitHandler.pullAndMapping(path, MappingFilePath)
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svnOrGit, path, e))
 
@@ -119,12 +118,12 @@ def make_compressed_file():
         if os.path.exists(_dir) is False:
             os.makedirs(_dir)
         # 对各部门工程项目进行工程说明
-        with open('{}\{}'.format(dst, '项目备份保存清单.txt'), encoding="GBK") as f:
+        with open('{}\{}'.format(dst, '项目备份保存清单.txt'), encoding="utf-8") as f:
             line = f.readline()
             while line:
                 if line.startswith(dir):
                     # str = line.split(':')
-                    f = open('{}\工程说明.txt'.format(_dir), 'a+', encoding="GBK")
+                    f = open('{}\工程说明.txt'.format(_dir), 'a+', encoding="utf-8")
                     _index = line.find("-")
                     if _index > 0 and (_index + 1) <= len(line):
                         line = line[_index + 1:]
