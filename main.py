@@ -54,7 +54,7 @@ def pull_code(svnOrGit='svn', path='', MappingFilePath=None):
         else:
             # todo
             pass
-            #status = GitHandler.pullAndMapping(path, MappingFilePath)
+            # status = GitHandler.pullAndMapping(path, MappingFilePath)
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svnOrGit, path, e))
 
@@ -180,9 +180,12 @@ def backup_file_svn():
     fileHandler = FileHandler.FileHandler()
     backupRep = fileHandler.getBackupRepository()
     if len(backupRep) > 0:
-        fileHandler.backupRepository(backupRep)
-        loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器！')
-        fileHandler.svn_commit(backupRep)
+        try:
+            fileHandler.backupRepository(backupRep)
+            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器！')
+            fileHandler.svn_commit(backupRep)
+        except (KeyboardInterrupt, SystemExit) as e:
+            loggingHandler.logger.exception('备份文件到svn出现异常！')
 
 
 # def backup_svn_git_zip():

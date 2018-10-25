@@ -46,7 +46,7 @@ class FileHandler:
                              'BackupRepository': '{}\{}'.format(os.path.dirname(path['path']), str[0])})
 
                         line = f.readline()
-            loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！', path['path'])
+            loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！'.format(path['path']))
 
         return backupRep
 
@@ -82,35 +82,42 @@ class FileHandler:
                 continue
 
             if os.path.exists(path['BackupRepository']):
-                # 检查工程项目或单个项目 是否违法【源文件存放规范】
-                _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
-                if os.path.exists(_rmFile):
-                    with open(_rmFile, encoding="GBK") as f:
-                        line = f.readline()
-                        while line:
-                            # print(line)
-                            str = line.split(':')
-                            # 目录为工程项目
-                            if line.find(':') > 0 & os.path.exists('{}\{}'.format(path['BackupRepository'], str[0])):
-                                self.jedgeProjectStandard('{}\{}'.format(path['BackupRepository'], str[0]),
-                                                          projectStandard)
-                            else:  # 为单个项目
-                                self.jedgeProjectStandard(path['BackupRepository'], projectStandard)
+                try:
+                    # 检查工程项目或单个项目 是否违法【源文件存放规范】
+                    _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
+                    if os.path.exists(_rmFile):
+                        with open(_rmFile, encoding="GBK") as f:
                             line = f.readline()
-
-            # 从 项目备份保存清单文件里，读取需要备份的工程项目信息，并写入到 备份目录
-            with open(filePath, encoding="GBK") as f:
-                line = f.readline()
-                while line:
-                    # print(line)
-                    str = line.split(':')
-                    if str[0] == path['RepositoryName']:
-                        f = open(inventory_file, 'a+', encoding="GBK")
-                        f.writelines('{}-{}'.format(path['depCode'], line))
-                        f.close()
-                        break
-                    else:
-                        line = f.readline()
+                            while line:
+                                # print(line)
+                                str = line.split(':')
+                                # 目录为工程项目
+                                if line.find(':') > 0 & os.path.exists(
+                                        '{}\{}'.format(path['BackupRepository'], str[0])):
+                                    self.jedgeProjectStandard('{}\{}'.format(path['BackupRepository'], str[0]),
+                                                              projectStandard)
+                                else:  # 为单个项目
+                                    self.jedgeProjectStandard(path['BackupRepository'], projectStandard)
+                                line = f.readline()
+                except Exception as e:
+                    loggingHandler.logger.exception(
+                        '检查工程项目或单个项目 是否违法【源文件存放规范】，路径为：{0}'.format(path['BackupRepository']))
+            try:
+                # 从 项目备份保存清单文件里，读取需要备份的工程项目信息，并写入到 备份目录
+                with open(filePath, encoding="GBK") as f:
+                    line = f.readline()
+                    while line:
+                        # print(line)
+                        str = line.split(':')
+                        if str[0] == path['RepositoryName']:
+                            f = open(inventory_file, 'a+', encoding="GBK")
+                            f.writelines('{}-{}'.format(path['depCode'], line))
+                            f.close()
+                            break
+                        else:
+                            line = f.readline()
+            except Exception as e:
+                loggingHandler.logger.exception('从 项目备份保存清单文件里，读取需要备份的工程项目信息，路径为：{0}'.format(filePath))
             # 项目备份来源位置
             sourcepath = path['BackupRepository']
             # 项目备份目标位置（备份到目标文件夹）
