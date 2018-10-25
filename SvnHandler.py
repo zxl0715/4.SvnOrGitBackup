@@ -44,6 +44,8 @@ def pull(path):
 
     except UnicodeDecodeError as e:
         loggingHandler.logger.warning('拉取{}路径为：{}信息{}'.format('svn', path, e))
+        loggingHandler.logger.info('拉取{}路径为：{} 编码信息：{}'.format('svn', path, svn.config.CONSOLE_ENCODING))
+
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，路径可能不是为svn目录，错误信息{3}'.format(3001, 'svn', path, e))
         return False
