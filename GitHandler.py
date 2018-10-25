@@ -111,7 +111,7 @@ def get_mapping_Git(root_path, git_profile_path):
     :return:
     '''
     valueList = get_backup_projtect(git_profile_path)
-    with open('{}/{}'.format(root_path, '目录说明.txt'), 'w')as f:
+    with open('{}/{}'.format(root_path, '目录说明.txt'), 'w', encoding="GBK")as f:
         for list in valueList:
             prjectURL = list[2]
             name_git = get_git_project_name(prjectURL)
@@ -137,8 +137,8 @@ def get_mapping_Git(root_path, git_profile_path):
             # repo.delete_remote(test_remote)  # create and delete remotes
             # 获取默认版本库 origin
             remote = repo.remote()
-
-            # remote.fetch()  # fetch,pull and push from and to the remote
+            # todo
+            remote.fetch()  # fetch,pull and push from and to the remote
             # repo.heads.master.checkout()  # checkout the branch using git-checkout
 
             # # 从远程版本库拉取分支

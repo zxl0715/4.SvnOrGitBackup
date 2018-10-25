@@ -34,7 +34,7 @@ class FileHandler:
                 #     [path['depCode'], path['path'], '','', '{}\{}'.format(path['path'], '')])
                 continue
             else:
-                with open(backup_file_path) as f:
+                with open(backup_file_path, encoding="GBK") as f:
                     line = f.readline()
                     while line:
                         # print(line)
@@ -85,7 +85,7 @@ class FileHandler:
                 # 检查工程项目或单个项目 是否违法【源文件存放规范】
                 _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
                 if os.path.exists(_rmFile):
-                    with open(_rmFile, encoding="utf-8-sig") as f:
+                    with open(_rmFile, encoding="GBK") as f:
                         line = f.readline()
                         while line:
                             # print(line)
@@ -99,13 +99,13 @@ class FileHandler:
                             line = f.readline()
 
             # 从 项目备份保存清单文件里，读取需要备份的工程项目信息，并写入到 备份目录
-            with open(filePath) as f:
+            with open(filePath, encoding="GBK") as f:
                 line = f.readline()
                 while line:
                     # print(line)
                     str = line.split(':')
                     if str[0] == path['RepositoryName']:
-                        f = open(inventory_file, 'a+')
+                        f = open(inventory_file, 'a+', encoding="GBK")
                         f.writelines('{}-{}'.format(path['depCode'], line))
                         f.close()
                         break
@@ -128,7 +128,7 @@ class FileHandler:
                 # 进行复制（忽略.svn和.git文件夹）
                 shutil.copytree(sourcepath, tagerpath, ignore=shutil.ignore_patterns('.svn', '.git', '.gitignore'))
             except Exception as e:
-                loggingHandler.logger.exception('从{} 复制到 {}失败{0}'.format(sourcepath, tagerpath))
+                loggingHandler.logger.exception('从{} 复制到 {}失败！'.format(sourcepath, tagerpath))
 
             # 方案一
             # self.copyFiles(sourcepath,tagerpath)
@@ -200,7 +200,7 @@ class FileHandler:
                 loggingHandler.logger.warning('***未有代码变化')
 
         except Exception as e:
-            loggingHandler.logger.exception('***提交文件至备份svn服务出错 {0}'.format(backupServerPath))
+            loggingHandler.logger.exception('***提交文件至备份svn服务出错（请检查备份svn可用性） {0}'.format(backupServerPath))
 
     def get_host_ip(self):
         '''获取本机ip'''
