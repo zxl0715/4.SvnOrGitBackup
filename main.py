@@ -81,8 +81,9 @@ def make_compressed_file():
     target = configHandler.getTargetPath()
     parent_path = os.path.dirname(dst)
     date = time.strftime('%Y%m%d', time.localtime(time.time()))
-    zipPath = r'{}\{}-{}'.format(target, startswith, date)
-
+    zip_path = r'{}\{}-{}'.format(target, startswith, date)
+    # 作为临时文件（后面做变更成正式）
+    zip_path_temp = zip_path + '_'
     if os.path.exists(dst) is False:
         loggingHandler.logger.warning('代码备份路径{}不存在。'.format(dst))
         return False
@@ -95,8 +96,10 @@ def make_compressed_file():
         except Exception as e:
             loggingHandler.logger.exception('5001  删除历史归档文件失败，请检查文件是否被占用或无权限访问！')
 
-    if os.path.exists(zipPath) is False:
-        os.makedirs(zipPath)
+    # 创建目标文件(下划线)
+    if os.path.exists(zip_path_temp) is False:
+        os.makedirs(zip_path_temp)
+
     _dir = ''
     _dep_code = ''
     _dep_name = ''
@@ -114,20 +117,20 @@ def make_compressed_file():
             _dep_code = dir[:_index]
             _dep_name = getDetpName(_dep_code)
         # 压缩到 的目标文件路径
-        _dir = r'{}\{}'.format(zipPath, _dep_name)
+        _dir = r'{}\{}'.format(zip_path_temp, _dep_name)
         if os.path.exists(_dir) is False:
             os.makedirs(_dir)
         # 对各部门工程项目进行工程说明
-        with open('{}\{}'.format(dst, '项目备份保存清单.txt'), encoding="utf-8") as f:
+        with open('{}\{}'.format(dst, '项目备份保存清单.txt'), encoding="UTF-8-sig") as f:
             line = f.readline()
             while line:
-                if line.startswith(dir):
+                if line.find(dir) == 0:
                     # str = line.split(':')
-                    f = open('{}\工程说明.txt'.format(_dir), 'a+', encoding="utf-8")
+                    f = open('{}\工程说明.txt'.format(_dir), 'a+', encoding="UTF-8-sig")
                     _index = line.find("-")
                     if _index > 0 and (_index + 1) <= len(line):
                         line = line[_index + 1:]
-                    f.write(line)
+                    f.writelines(line)
                     f.close()
                     break
                 else:
@@ -141,6 +144,8 @@ def make_compressed_file():
         zipo = ZipObj(_zip_path, pwd)
         zipo.enCrypt(targetPath=_dir, fileName=filename, deleteSource=False)
         loggingHandler.logger.info('打包工程文件：{} 项目归属部门 {} 成功！'.format(filename.rjust(20), _dep_name.rjust(10)))
+    # 重命名目标文件路径（作为用为，文件在生成中尾部为下划线结尾，全部生成完成后去除下划线）
+    os.rename(zip_path_temp, zip_path)
 
 
 def job():

@@ -36,8 +36,8 @@ class FileHandler:
             else:
                 try:
 
-                    with open(backup_file_path, encoding="utf-8") as f:
-                        loggingHandler.logger.info('文件编码为：{}！'.format(f.encoding))
+                    with open(backup_file_path, encoding="UTF-8-sig") as f:
+                        # loggingHandler.logger.info('文件编码为：{}！'.format(f.encoding))
 
                         line = f.readline()
                         while line:
@@ -91,7 +91,7 @@ class FileHandler:
                 try:
                     # 检查工程项目或单个项目 是否违法【源文件存放规范】
                     _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
-                    if os.path.exists(_rmFile):
+                    if os.path.exists(_rmFile) and path['BackupRepository'].find('_mapping') == -1:
                         with open(_rmFile, encoding="UTF-8-sig") as f:
                             line = f.readline()
                             while line:
@@ -117,7 +117,8 @@ class FileHandler:
                         str = line.split(':')
                         if str[0] == path['RepositoryName']:
                             f = open(inventory_file, 'a+', encoding="UTF-8-sig")
-                            f.writelines('{}-{}'.format(path['depCode'], line))
+                            # f.writelines('{}-{}'.format(path['depCode'], line))
+                            f.write('{}-{}{}'.format(path['depCode'], line, '\r\n'))
                             f.close()
                             break
                         else:
@@ -129,22 +130,26 @@ class FileHandler:
             # 项目备份目标位置（备份到目标文件夹）
             tagerpath = '{}\{}-{}'.format(backupServerPath, path['depCode'], os.path.basename(path['BackupRepository']))
 
-            # 方案二
-            # todo
-            try:
-                if os.path.exists(tagerpath):
-                    shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
-            except Exception as e:
-                loggingHandler.logger.exception('删除文件失败，路径为：{0}'.format(tagerpath))
+            # 文件移动的方案
+            enable_plan = 1
+            if enable_plan == 2:
+                # 方案一
+                # todo
+                try:
+                    if os.path.exists(tagerpath):
+                        shutil.rmtree(tagerpath)  # 递归删除一个目录以及目录内的所有内容
+                except Exception as e:
+                    loggingHandler.logger.exception('删除文件失败，路径为：{0}'.format(tagerpath))
 
-            try:
-                # 进行复制（忽略.svn和.git文件夹）
-                shutil.copytree(sourcepath, tagerpath, ignore=shutil.ignore_patterns('.svn', '.git', '.gitignore'))
-            except Exception as e:
-                loggingHandler.logger.exception('从{} 复制到 {}失败！'.format(sourcepath, tagerpath))
+                try:
+                    # 进行复制（忽略.svn和.git文件夹）
+                    shutil.copytree(sourcepath, tagerpath, ignore=shutil.ignore_patterns('.svn', '.git', '.gitignore'))
+                except Exception as e:
+                    loggingHandler.logger.exception('从{} 复制到 {}失败！'.format(sourcepath, tagerpath))
+            else:
 
-            # 方案一
-            # self.copyFiles(sourcepath,tagerpath)
+                # 方案二
+                self.copyFiles(sourcepath, tagerpath)
 
             # shutil.copytree(path[4], '{}\{}'.format(backupServerPath, os.path.basename(path[4])), symlinks=False,
             #                 ignore=shutil.ignore_patterns(".svn"), copy_function=shutil.copy2,
@@ -152,15 +157,17 @@ class FileHandler:
 
             # shutil.move(sourcepath, tagerpath)
 
-            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器{}！', path['RepositoryPath'])
+            loggingHandler.logger.info('移动备份工程项目文件{}至本地备份服务器{}！'.format(sourcepath, path['RepositoryPath']))
 
     def copyFiles(self, sourceDir, targetDir):
         '''从源svn或git目录，备份文件到备份的svn目录下'''
-        if sourceDir.find(".svn") > 0:
+        if sourceDir.find(".svn") > 0 or sourceDir.find(".git") > 0 or sourceDir.find(".gitignore") > 0:
             return
         for file in os.listdir(sourceDir):
             sourceFile = os.path.join(sourceDir, file)
             targetFile = os.path.join(targetDir, file)
+            if len(sourceFile) > 200:
+                continue
             if not os.path.exists(targetDir):
                 os.makedirs(targetDir)
             if os.path.isfile(sourceFile):

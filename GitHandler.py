@@ -70,7 +70,7 @@ def get_backup_projtect(git_profile_path):
     """读取配置文件，获取子git 映射信息"""
     cf = configparser.ConfigParser()
     try:
-        cf.read(git_profile_path, encoding="utf-8")
+        cf.read(git_profile_path, encoding="UTF-8-sig")
     except Exception as e:
         loggingHandler.logger.exception('错误代码：10002 读取配置文件{}失败，请检查应用程序配置文件信息！'.format(git_profile_path))
 
@@ -111,7 +111,7 @@ def get_mapping_Git(root_path, git_profile_path):
     :return:
     '''
     valueList = get_backup_projtect(git_profile_path)
-    with open('{}/{}'.format(root_path, '目录说明.txt'), 'w', encoding="utf-8")as f:
+    with open('{}/{}'.format(root_path, '目录说明.txt'), 'w', encoding="UTF-8-sig")as f:
         for list in valueList:
             prjectURL = list[2]
             name_git = get_git_project_name(prjectURL)
