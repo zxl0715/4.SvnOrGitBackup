@@ -124,7 +124,7 @@ def get_mapping_Git(root_path, git_profile_path):
                 line = '{}-{}'.format(list[0], list[1])
 
             f.writelines('{}:{}{}'.format(name_git, line, '\n'))
-            print(list[0])
+            loggingHandler.logger.debug('Git 映射项目{}执行进度……'.format(list[0]))
             # continue
             if os.path.exists(path) == False:
                 repo = git.Repo.init(path, True)

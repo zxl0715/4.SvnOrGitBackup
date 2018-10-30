@@ -201,11 +201,12 @@ def backup_file_svn():
 def backupCode(isZip=False):
     loggingHandler.logger.info('启动任务{}'.format(os.linesep))
     try:
-        # 拉取代码
-        loggingHandler.logger.debug('backup_svn_git 1')
-        # todo
-        backup_svn_git()
-        loggingHandler.logger.debug('backup_svn_git 2')
+        # # 拉取代码
+        # loggingHandler.logger.debug('backup_svn_git 1')
+        # # todo
+        # backup_svn_git()
+        # loggingHandler.logger.debug('backup_svn_git 2')
+
         loggingHandler.logger.debug('backup_file_svn 1')
         # 备份文件至svn备份服务器
         # todo

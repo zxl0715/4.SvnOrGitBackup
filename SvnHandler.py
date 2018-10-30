@@ -31,7 +31,7 @@ def remote(url, path):
         r = svn.remote.RemoteClient(url)
         r.checkout(path)
     except Exception as e:
-        print(e)
+        loggingHandler.logger.exception('服务器仓库检出服务器上的配置库到指定目录出错')
 
 
 def pull(path):
@@ -42,7 +42,7 @@ def pull(path):
         r.cleanup()
         r.update()
 
-    #todo:svn 执行 update 报UnicodeDecodeError: 'utf-8' codec can't decode byte 0xca in position 8: invalid continuation byte 错误时修改，svn包下 common_base.py文件，以下代码
+    # todo:svn 执行 update 报UnicodeDecodeError: 'utf-8' codec can't decode byte 0xca in position 8: invalid continuation byte 错误时修改，svn包下 common_base.py文件，以下代码
     # return stdout.decode().strip('\n').split('\n')
     # return stdout.decode(svn.config.CONSOLE_ENCODING).strip('\n').split('\n')
     except UnicodeDecodeError as e:

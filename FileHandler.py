@@ -202,8 +202,6 @@ class FileHandler:
                     aa += 1
                     repo.delete(file.name)
                     un_filepaths.append(file.name)
-
-                print(file)
             # if len(un_filepaths) > 0:
             #     # 添加未管控的文件
             #     repo.add(un_filepaths)
@@ -214,7 +212,9 @@ class FileHandler:
                 message += '{}备份服务器ip地址为：{}'.format(os.linesep, self.get_host_ip())
 
                 repo.cleanup()
-                repo.commit(message, rel_filepaths)
+                # repo.commit(message, rel_filepaths)
+                #提交所有文件
+                repo.commit(message, ['*/**/*'])
                 loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backupServerPath))
             else:
                 loggingHandler.logger.warning('***未有代码变化')
