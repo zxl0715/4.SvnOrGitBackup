@@ -76,6 +76,19 @@ class FileHandler:
         # 清理svn备份仓库的项目备份保存清单文件
         if os.path.exists(inventory_file) == True:
             os.remove(inventory_file)
+        dirs = os.listdir(backupServerPath)
+        for path in dirs:
+            _path = backupServerPath + '/' + path
+            if (os.path.isdir(_path)):
+                # 排除隐藏文件夹。因为隐藏文件夹过多
+                if (path[0] == '.'):
+                    pass
+                else:
+                    # 添加非隐藏文件夹
+                    shutil.rmtree(_path)  # 递归删除一个目录以及目录内的所有内容
+            elif (os.path.isfile(_path)):
+                # 添加文件
+                os.remove(_path)
 
         for path in backupPath:
 
@@ -202,7 +215,7 @@ class FileHandler:
                 # 修改（过时）的文件
                 if file.type_raw_name == 'missing':
                     aa += 1
-                    #在包文件local.py 添加 删除方法
+                    # 在包文件local.py 添加 删除方法
                     #
                     repo.delete(file.name)
                     un_filepaths.append(file.name)

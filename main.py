@@ -226,6 +226,7 @@ def backupCode(isZip=False):
 
 
 def main():
+    # assert 2 == 1, '2不等于1'
     multiprocessing.freeze_support()  # 解决pyinstaller多进程打包问题
     loggingHandler.logger.info('{}————————————————————————————————————————————————{}'.format(os.linesep, os.linesep))
     loggingHandler.logger.info('启动程序运行！')
