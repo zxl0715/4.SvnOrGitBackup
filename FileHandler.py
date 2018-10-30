@@ -183,13 +183,15 @@ class FileHandler:
         backupServerPath = configHandler.getBackupPath()
         if os.path.exists(backupServerPath) == False:
             loggingHandler.logger.warning('备份服务器svn路径不存在{0}，请检查！', backupServerPath)
-
+        bb = 0
         try:
             repo = svn.local.LocalClient(backupServerPath)
             changFile = repo.status()
             un_filepaths = []
             rel_filepaths = []
             aa = 1
+            # 清除锁定
+            repo.cleanup()
             for file in changFile:
                 rel_filepaths.append(file.name)
                 # 未进行管控的文件
@@ -200,27 +202,37 @@ class FileHandler:
                 # 修改（过时）的文件
                 if file.type_raw_name == 'missing':
                     aa += 1
+                    #在包文件local.py 添加 删除方法
+                    #
                     repo.delete(file.name)
                     un_filepaths.append(file.name)
+
+                # with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+                #     f1.writelines('fileStatus：{} :{}！\n'.format(file.type_raw_name, file.name))
+                loggingHandler.logger.debug('fileStatus：{} :{}！\n'.format(file.type_raw_name, file.name))
             # if len(un_filepaths) > 0:
             #     # 添加未管控的文件
             #     repo.add(un_filepaths)
-
+            bb = len(rel_filepaths)
             if len(rel_filepaths) > 0:
+
                 # 添加到需要提交的列表
                 message = '备份系统自动提交，日期为:{0}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
                 message += '{}备份服务器ip地址为：{}'.format(os.linesep, self.get_host_ip())
 
-                repo.cleanup()
+                # 先进行更新
+                repo.update()
                 # repo.commit(message, rel_filepaths)
-                #提交所有文件
-                repo.commit(message, ['*/**/*'])
+                # 提交所有文件
+                # repo.commit(message, ['*/**/*'])
+                repo.commit(message, [''])
                 loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backupServerPath))
             else:
                 loggingHandler.logger.warning('***未有代码变化')
 
         except Exception as e:
-            loggingHandler.logger.exception('***提交文件至备份svn服务出错（请检查备份svn可用性） {0}'.format(backupServerPath))
+            loggingHandler.logger.exception(
+                '***提交文件至备份svn服务出错（请检查备份svn可用性） {0}  ,len(rel_filepaths)='.format(backupServerPath, aa))
 
     def get_host_ip(self):
         '''获取本机ip'''

@@ -28,7 +28,7 @@ formatter = logging.Formatter(fmt='%(asctime)s %(filename)s[line:%(lineno)d] %(l
 
 # 写入文件，如果文件超过100个Bytes，仅保留5个文件。
 handler = logging.handlers.RotatingFileHandler(
-    logDir + '/app.log', maxBytes=1 * 1024 * 1024, backupCount=5, encoding='utf-8')
+    logDir + '/app.log', maxBytes=2 * 1024 * 1024, backupCount=5, encoding='utf-8')
 handler.setFormatter(formatter)
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
