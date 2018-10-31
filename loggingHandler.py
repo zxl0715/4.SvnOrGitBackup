@@ -9,7 +9,7 @@ if os.path.exists(os.getcwd() + '/' + logDir) is False:
 
 logger = logging.getLogger(__name__)
 
-loging_level = configHandler.getLoggingLevel()
+loging_level = configHandler.get_logging_level()
 if loging_level.upper() == 'DEBUG':
     logger.setLevel(logging.DEBUG)
 elif loging_level.upper() == 'INFO':

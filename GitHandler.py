@@ -5,23 +5,23 @@ import os
 
 
 def pullAndMapping(path, mapping_file_path):
-    '''
-    拉取目标GIT，并执行映射文件内容
+    """
+    拉取目标Git，并执行映射文件内容
     :param path:
     :param mapping_file_path: 映射文件路径
     :return:返回True or False
-    '''
+    """
     status = pull(path)
-    if status == False:
+    if not status:
         return status
 
         # 设置映射文件生成的目标路径
     mapping_file_path = '{}\{}'.format(path, mapping_file_path)
-    if os.path.exists(mapping_file_path) == True:
+    if os.path.exists(mapping_file_path):
         try:
             # 设置git映射文件路径
             path_mapping = '{}{}'.format(path, '_mapping')
-            if os.path.exists(path_mapping) == False:
+            if not os.path.exists(path_mapping):
                 os.mkdir(path_mapping)
             get_mapping_Git(path_mapping, mapping_file_path)
         except Exception as e:
@@ -37,11 +37,11 @@ def pullAndMapping(path, mapping_file_path):
 
 
 def pull(path):
-    '''
+    """
     拉取文件
     :param path:
     :return:
-    '''
+    """
     try:
         # 创建版本库对象
         repo = git.Repo(path)
@@ -52,9 +52,9 @@ def pull(path):
         repo.git.checkout('.')
         # 强制放弃本地修改（新增、删除文件）
         repo.git.clean('-df')
-    except Exception as e:
-        # loggingHandler.logger.error('错误代码{0}：拉取路径为：{1}出错，错误信息{2}'.format(2001, path, e), e)
-        loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，错误信息{3}'.format(3001, 'svn', path, e))
+    except Exception as ee:
+        # loggingHandler.logger.error('错误代码{0}：拉取路径为：{1}出错，错误信息{2}'.format(2001, path, ee), ee)
+        loggingHandler.logger.exception('错误代码{0}：拉取{1}路径为：{2}出错，错误信息{3}'.format(3001, 'svn', path, ee))
         return False
         # print(type(e))  # 异常实例
         # print('___________________1')
@@ -66,7 +66,7 @@ def pull(path):
     return True
 
 
-def get_backup_projtect(git_profile_path):
+def get_backup_project(git_profile_path):
     """读取配置文件，获取子git 映射信息"""
     cf = configparser.ConfigParser()
     try:
@@ -85,18 +85,27 @@ def get_backup_projtect(git_profile_path):
     return value_list
 
 
-def find_last(string, str):
-    '''获取指定字符最后出现的位置'''
+def find_last(string, str_char):
+    """
+    获取指定字符最后出现的位置
+    :param string:
+    :param str_char:
+    :return:
+    """
     last_position = -1
     while True:
-        position = string.find(str, last_position + 1)
+        position = string.find(str_char, last_position + 1)
         if position == -1:
             return last_position
         last_position = position
 
 
 def get_git_project_name(url):
-    '''获取项目名称'''
+    """
+    获取项目名称
+    :param url:
+    :return:
+    """
     index_begin = find_last(url, '/')
     index_end = find_last(url, '.')
     name = url[index_begin + 1:index_end]
@@ -104,20 +113,19 @@ def get_git_project_name(url):
 
 
 def get_mapping_Git(root_path, git_profile_path):
-    '''
+    """
     获取影视的Git库
     :param root_path:目标的路径
     :param git_profile_path:Git映射配置文件路径
     :return:
-    '''
-    valueList = get_backup_projtect(git_profile_path)
+    """
+    valueList = get_backup_project(git_profile_path)
     with open('{}/{}'.format(root_path, '目录说明.txt'), 'w', encoding="UTF-8-sig")as f:
         for list in valueList:
-            prjectURL = list[2]
-            name_git = get_git_project_name(prjectURL)
+            prject_url = list[2]
+            name_git = get_git_project_name(prject_url)
 
             path = '{}\{}'.format(root_path, name_git)
-            line = ''
             if list[1].strip() == '':
                 line = '{}'.format(list[0])
             else:
@@ -126,10 +134,10 @@ def get_mapping_Git(root_path, git_profile_path):
             f.writelines('{}:{}{}'.format(name_git, line, '\n'))
             loggingHandler.logger.debug('Git 映射项目{}执行进度……'.format(list[0]))
             # continue
-            if os.path.exists(path) == False:
+            if not os.path.exists(path):
                 repo = git.Repo.init(path, True)
                 # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
-                test_remote = repo.create_remote('origin', prjectURL)
+                repo.create_remote('origin', prject_url)
                 # os.mkdir(path)
             # 2
             # ---------
@@ -158,7 +166,7 @@ def get_mapping_Git(root_path, git_profile_path):
             # print(o.url)
             # 创建版本库对象
             # # 克隆版本库
-            # repo.clone(prjectURL)
+            # repo.clone(prject_url)
             # 4从远程版本库拉取分支
             # repo.remote().pull()
     return True
@@ -177,7 +185,7 @@ def test():
         a = repo.is_dirty()
         print(str(a))
         # 版本库中未跟踪的文件列表
-        repo.untracked_files
+        # untracked_file=repo.untracked_files
         # 克隆版本库
         repo.clone('clone_path')
         # 获取默认版本库 origin

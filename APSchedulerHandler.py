@@ -8,12 +8,12 @@ from apscheduler.schedulers.blocking import BlockingScheduler
 from apscheduler.events import *
 from apscheduler.triggers.cron import CronTrigger
 
-#EVENT_JOB_ADDED = 128
-#EVENT_JOB_REMOVED = 256
-#EVENT_JOB_MODIFIED = 512
-#EVENT_JOB_EXECUTED = 1024
-#EVENT_JOB_ERROR = 2048
-#EVENT_JOB_MISSED = 4096#
+# EVENT_JOB_ADDED = 128
+# EVENT_JOB_REMOVED = 256
+# EVENT_JOB_MODIFIED = 512
+# EVENT_JOB_EXECUTED = 1024
+# EVENT_JOB_ERROR = 2048
+# EVENT_JOB_MISSED = 4096#
 LISTENER_JOB = (EVENT_JOB_ADDED |
                 EVENT_JOB_REMOVED |
                 EVENT_JOB_MODIFIED |
@@ -44,24 +44,23 @@ class JobManager(object):
     def start(self):
         self.scheduler.start()
 
-    def add_job(self, method, jobid, hour, minute, second,*trigger_args):
+    def add_job(self, method, jobid, hour, minute, second, *trigger_args):
         trigger_dict = dict(hour=hour, minute=minute, second=second)
         trigger = CronTrigger(**trigger_dict)
 
         # job = self.scheduler.add_job(method, 'cron', hour=17, minute=33, second=20)
         job = self.scheduler.add_job(method, trigger, id=jobid, args=trigger_args)
         # job = self.scheduler.add_job(method, trigger)
-        print("add job %s successful!" % jobid + "; next_run_time: + str(job.next_run_time)" )
+        print("add job %s successful!" % jobid + "; next_run_time: + str(job.next_run_time)")
 
 
 def my_job(job_id):
-    print('Job ' + str(job_id) + ' begin!'+time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
+    print('Job ' + str(job_id) + ' begin!' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
     # 每60秒查看下网络连接情况
     # os.system("netstat -an")
 
     time.sleep(3)
-    print('Job ' + str(job_id) + ' End!'+time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-
+    print('Job ' + str(job_id) + ' End!' + time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
 
 
 # 4.异常处理
@@ -100,5 +99,5 @@ if __name__ == '__main__':
 
 # 每分钟执行一次，可以写成， */1 * * * * cmd
 # 每天上午8点执行一次， 可以写成，0 8 */1 * * cmd
-#Python已经提供了这个模块，croniter，我们使用 pip install croniter即可安装croniter模块。
+# Python已经提供了这个模块，croniter，我们使用 pip install croniter即可安装croniter模块。
 #

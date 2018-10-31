@@ -345,7 +345,7 @@ class CommonClient(svn.common_base.CommonBase):
         except Exception as e:
             with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
                 f1.writelines(
-                    ' C:\MyData\Work_ZH\WIS\100.project\4.SvnOrGitBackup\venv\Lib\site-packages\svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(
+                    ' svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(
                         e))
 
         list_ = root.findall('target/entry')

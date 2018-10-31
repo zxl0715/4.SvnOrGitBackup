@@ -2,23 +2,13 @@ import multiprocessing
 import os
 import shutil
 import time
-from datetime import datetime
-
-import svn.local
-
-import apscheduler
-from apscheduler.schedulers.blocking import BlockingScheduler
-
 import GitHandler
 import SvnHandler
 import configHandler
 import loggingHandler
-
 from APSchedulerHandler import JobManager
-
 # 拉取代码
 import FileHandler
-
 #
 from zipObj import ZipObj
 
@@ -26,48 +16,61 @@ from zipObj import ZipObj
 def backup_svn_git():
     '''使用多进程，拉取代码'''
     # 获取svn和git本地仓库路径
-    paths = configHandler.getSvnOrGitPath()
+    paths = configHandler.get_svn_or_git_path()
     # 获取本机cpu数量
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cores)
-    for map in paths:
+    for agr in paths:
         '''使用多进程执行'''
         # pool = multiprocessing.Process(target=pull_code, args=(svnOrGit,path,))
-        pool.apply_async(pull_code, args=(map['type'], map['path'], map['MappingFilePath']))
-        loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(map['type'], map['path']))
+        pool.apply_async(pull_code, args=(agr['type'], agr['path'], agr['MappingFilePath']))
+        loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(agr['type'], agr['path']))
     pool.close()
     pool.join()
     loggingHandler.logger.info('多进程任务执行代码库同步至本地库完成,共计 {} 个任务!'.format(len(paths)))
 
 
-def pull_code(svnOrGit='svn', path='', MappingFilePath=None):
+def pull_code(svn_or_git='svn', path='', mapping_file_path=None):
     '''拉取代码'''
     status = False
-    if os.path.exists(path) == False:
-        loggingHandler.logger.warning('{0} 路径{1}不存在。'.format(svnOrGit, path))
+    if os.path.exists(path) is False:
+        loggingHandler.logger.warning('{0} 路径{1}不存在。'.format(svn_or_git, path))
         return status
     try:
         # todo
-        if svnOrGit == 'svn':
+        if svn_or_git == 'svn':
             # todo
             status = SvnHandler.pull(path)
         else:
             # todo
-            status = GitHandler.pullAndMapping(path, MappingFilePath)
+            status = GitHandler.pullAndMapping(path, mapping_file_path)
     except Exception as e:
-        loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svnOrGit, path, e))
+        loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svn_or_git, path, e))
 
     if status:
-        loggingHandler.logger.info('{0} 库拉取代码成功，路径{1}！'.format(svnOrGit, path))
+        loggingHandler.logger.info('{0} 库拉取代码成功，路径{1}！'.format(svn_or_git, path))
     else:
-        loggingHandler.logger.info('{0} 库拉取代码失败，路径{1}！'.format(svnOrGit, path))
+        loggingHandler.logger.info('{0} 库拉取代码失败，路径{1}！'.format(svn_or_git, path))
     return status
 
 
-def getDetpName(code):
+def backup_file_svn():
+    '''备份文件到svn（备份的svn）'''
+    file_handler = FileHandler.FileHandler()
+    backup_rep = file_handler.getBackupRepository()
+    if len(backup_rep) > 0:
+        try:
+            file_handler.backupRepository(backup_rep)
+            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器！')
+            file_handler.svn_commit(backup_rep)
+        except (KeyboardInterrupt, SystemExit) as e:
+            loggingHandler.logger.exception('备份文件到svn出现异常！')
+
+
+def get_detp_name(code):
     '''获取部门名称'''
-    deptInfo = configHandler.getDdepartment()
-    for dept in deptInfo:
+    dept_info = configHandler.get_department()
+    for dept in dept_info:
         if code == dept[0]:
             return dept[1]
     return None
@@ -76,9 +79,9 @@ def getDetpName(code):
 def make_compressed_file():
     '''执行文件压缩'''
     startswith = '研发成果'
-    pwd = configHandler.getZipPwd()
-    dst = configHandler.getBackupPath()
-    target = configHandler.getTargetPath()
+    pwd = configHandler.get_zip_pwd()
+    dst = configHandler.get_backup_path()
+    target = configHandler.get_target_path()
     parent_path = os.path.dirname(dst)
     date = time.strftime('%Y%m%d', time.localtime(time.time()))
     zip_path = r'{}\{}-{}'.format(target, startswith, date)
@@ -108,14 +111,14 @@ def make_compressed_file():
     # 按部门、工程项目打包压缩
     for dir in os.listdir(dst):
         _index = dir.find("-")
-        if os.path.isdir('{}\{}'.format(dst, dir)) == False:
+        if not os.path.isdir('{}\{}'.format(dst, dir)):
             continue
         if dir.find(".svn") >= 0:
             continue
 
         if _index > 0:
             _dep_code = dir[:_index]
-            _dep_name = getDetpName(_dep_code)
+            _dep_name = get_detp_name(_dep_code)
         # 压缩到 的目标文件路径
         _dir = r'{}\{}'.format(zip_path_temp, _dep_name)
         if os.path.exists(_dir) is False:
@@ -152,17 +155,17 @@ def job():
     '''使用定时任务执行'''
     sched = JobManager()
 
-    timeTaskList = configHandler.getTimedTask()
+    timeTaskList = configHandler.get_timed_task()
     try:
         for timeTask in timeTaskList:
             if timeTask[0] == 1:
                 # 备份源代码和归档
-                sched.add_job(backupCode, '', timeTask[1], timeTask[2], timeTask[3], True)
+                sched.add_job(backup_code, '', timeTask[1], timeTask[2], timeTask[3], True)
                 loggingHandler.logger.info(
                     '添加定时任务成功！类型为：备份源代码和归档，每天执行时间点为：{}:{}:{}'.format(timeTask[1], timeTask[2], timeTask[3]))
             else:
                 # 备份源代码
-                sched.add_job(backupCode, '', timeTask[1], timeTask[2], timeTask[3], False)
+                sched.add_job(backup_code, '', timeTask[1], timeTask[2], timeTask[3], False)
                 loggingHandler.logger.info(
                     '添加定时任务成功！类型为：备份源代码，每天执行时间点为：{}:{}:{}'.format(timeTask[1], timeTask[2], timeTask[3]))
 
@@ -179,49 +182,31 @@ def job():
         loggingHandler.logger.info('结束程序运行！')
 
 
-def backup_file_svn():
-    '''备份文件到svn（备份的svn）'''
-    fileHandler = FileHandler.FileHandler()
-    backupRep = fileHandler.getBackupRepository()
-    if len(backupRep) > 0:
-        try:
-            fileHandler.backupRepository(backupRep)
-            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器！')
-            fileHandler.svn_commit(backupRep)
-        except (KeyboardInterrupt, SystemExit) as e:
-            loggingHandler.logger.exception('备份文件到svn出现异常！')
-
-
-# def backup_svn_git_zip():
-#     '''拉取文件及归档备份'''
-#     backup_svn_git()
-#     # 压缩
-
-
-def backupCode(isZip=False):
+def backup_code(is_zip=False):
     loggingHandler.logger.info('启动任务{}'.format(os.linesep))
+
     try:
         # 拉取代码
-        loggingHandler.logger.debug('backup_svn_git 1')
+        loggingHandler.logger.debug('步骤{}：{} {}。'.format(1, 'backup_svn_git', '开始'))
         # todo
         backup_svn_git()
-        loggingHandler.logger.debug('backup_svn_git 2')
+        loggingHandler.logger.debug('步骤{}：{} {}。'.format(1, 'backup_svn_git', '完成'))
 
-        loggingHandler.logger.debug('backup_file_svn 1')
         # 备份文件至svn备份服务器
+        loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'backup_file_svn', '开始'))
         # todo
         backup_file_svn()
-        loggingHandler.logger.debug('backup_file_svn 2')
+        loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'backup_file_svn', '完成'))
 
         # 是否启用打包归档
-        if isZip:
+        if is_zip:
             # 按工程进行打包归档
-            loggingHandler.logger.debug('make_compressed_file 1')
+            loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'make_compressed_file', '开始'))
             make_compressed_file()
-            loggingHandler.logger.debug('make_compressed_file 2')
-
+            loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'make_compressed_file', '完成'))
     except Exception as e:
         loggingHandler.logger.exception('备份任务出现异常')
+
     loggingHandler.logger.info('结束任务{}'.format(os.linesep))
 
 
@@ -232,18 +217,16 @@ def main():
     loggingHandler.logger.info('启动程序运行！')
 
     '''设置启动运行'''
-    firstStartup = configHandler.getFirstStartup()
-    # firstStartup = False
-    if firstStartup:
+    first_startup = configHandler.get_first_startup()
+    if first_startup:
         loggingHandler.logger.info('程序启动一次运行开始！')
-        backupCode(True)
+        backup_code(True)
         loggingHandler.logger.info('程序启动一次运行结束！{}'.format(os.linesep))
 
     loggingHandler.logger.info('开始启动定时任务……')
     # 执行定时任务
     job()
     loggingHandler.logger.info('結束启动定时任务')
-
     loggingHandler.logger.info('结束程序运行！')
 
 

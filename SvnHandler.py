@@ -1,9 +1,6 @@
 # coding=utf-8
 import svn.remote
-import locale
 import svn.local
-import pprint
-import os
 import svn.config
 
 import loggingHandler
