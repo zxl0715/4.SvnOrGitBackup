@@ -230,4 +230,9 @@ Adding  (bin)  项目备份保存清单.txt
 Committing transaction...
 Committed revision 11.
 
-D:\testSVN>
+D:\testSVN>svn import .  --force
+
+
+
+##svn add 命令 递归目录下所有文件
+svn add . --no-ignore --force 

@@ -15,10 +15,6 @@ class FileHandler:
     def getBackupRepository(self):
         '''获取需要备份的工程项目，返回备份的工程项目路径'''
         paths = configHandler.getSvnOrGitPath()
-        # paths = configHandler.getSvnPath().split(';')
-        # paths.extend(configHandler.getGitPath().split(';'))
-
-        # pathsNew = list(set(paths))  # 去除重复
         fileName = '项目备份保存清单.txt'
         backupRep = []
         for path in paths:
@@ -143,6 +139,9 @@ class FileHandler:
             # 项目备份目标位置（备份到目标文件夹）
             tagerpath = '{}\{}-{}'.format(backupServerPath, path['depCode'], os.path.basename(path['BackupRepository']))
 
+            if os.path.exists(sourcepath) == False:
+                loggingHandler.logger.info('工程项目文件：{}不存在！'.format(sourcepath))
+                continue
             # 文件移动的方案
             enable_plan = 1
             if enable_plan == 2:
@@ -199,19 +198,23 @@ class FileHandler:
         bb = 0
         try:
             repo = svn.local.LocalClient(backupServerPath)
-            changFile = repo.status()
             un_filepaths = []
             rel_filepaths = []
             aa = 1
             # 清除锁定
             repo.cleanup()
-            for file in changFile:
+
+            repo.add('. --no-ignore --force ')
+
+            chang_file = repo.status_new()
+            for file in chang_file:
                 rel_filepaths.append(file.name)
                 # 未进行管控的文件
-                if file.type_raw_name == 'unversioned':
-                    aa += 1
-                    repo.add(file.name)
-                    un_filepaths.append(file.name)
+                # if file.type_raw_name == 'unversioned':
+                #     aa += 1
+                #     repo.add(file.name)
+                #     un_filepaths.append(file.name)
+
                 # 修改（过时）的文件
                 if file.type_raw_name == 'missing':
                     aa += 1

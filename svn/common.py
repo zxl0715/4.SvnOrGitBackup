@@ -23,7 +23,7 @@ _STATUS_ENTRY = \
 
 
 class CommonClient(svn.common_base.CommonBase):
-    def __init__(self, url_or_path, type_, username=None, password=None, 
+    def __init__(self, url_or_path, type_, username=None, password=None,
                  svn_filepath='svn', trust_cert=None, env={}, *args, **kwargs):
         super(CommonClient, self).__init__(*args, **kwargs)
 
@@ -95,8 +95,8 @@ class CommonClient(svn.common_base.CommonBase):
 
             'relative_url': self.__element_text(relative_url),
 
-# TODO(dustin): These are just for backwards-compatibility. Use the ones added
-#               below.
+            # TODO(dustin): These are just for backwards-compatibility. Use the ones added
+            #               below.
 
             'entry#kind': entry_attr['kind'],
             'entry#path': entry_attr['path'],
@@ -119,8 +119,8 @@ class CommonClient(svn.common_base.CommonBase):
         # symbols. However, we retain the old ones to maintain backwards-
         # compatibility.
 
-# TODO(dustin): Should we be casting the integers?
-# TODO(dustin): Convert to namedtuple in the next version.
+        # TODO(dustin): Should we be casting the integers?
+        # TODO(dustin): Convert to namedtuple in the next version.
 
         info['entry_kind'] = info['entry#kind']
         info['entry_path'] = info['entry#path']
@@ -297,12 +297,14 @@ class CommonClient(svn.common_base.CommonBase):
             'status',
             ['--xml', full_url_or_path],
             do_combine=True)
-        root=object
+        root = object
         try:
             root = xml.etree.ElementTree.fromstring(raw)
         except Exception as e:
             with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
-                f1.writelines(' C:\MyData\Work_ZH\WIS\100.project\4.SvnOrGitBackup\venv\Lib\site-packages\svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(e))
+                f1.writelines(
+                    ' C:\MyData\Work_ZH\WIS\100.project\4.SvnOrGitBackup\venv\Lib\site-packages\svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(
+                        e))
 
         list_ = root.findall('target/entry')
         for entry in list_:
@@ -327,6 +329,50 @@ class CommonClient(svn.common_base.CommonBase):
                 type=change_type,
                 revision=revision
             )
+
+    def status_new(self, rel_path=None):
+        full_url_or_path = self.__url_or_path
+        if rel_path is not None:
+            full_url_or_path += '/' + rel_path
+
+        raw = self.run_command(
+            'status',
+            ['--xml', full_url_or_path],
+            do_combine=True)
+        root = object
+        try:
+            root = xml.etree.ElementTree.fromstring(raw)
+        except Exception as e:
+            with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+                f1.writelines(
+                    ' C:\MyData\Work_ZH\WIS\100.project\4.SvnOrGitBackup\venv\Lib\site-packages\svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(
+                        e))
+
+        list_ = root.findall('target/entry')
+        return_list = []
+        for entry in list_:
+            entry_attr = entry.attrib
+            name = entry_attr['path']
+
+            wcstatus = entry.find('wc-status')
+            wcstatus_attr = wcstatus.attrib
+
+            change_type_raw = wcstatus_attr['item']
+            change_type = svn.constants.STATUS_TYPE_LOOKUP[change_type_raw]
+
+            # This will be absent if the file is "unversioned". It'll be "-1"
+            # if added but not committed.
+            revision = wcstatus_attr.get('revision')
+            if revision is not None:
+                revision = int(revision)
+
+            return_list.append(_STATUS_ENTRY(
+                name=name,
+                type_raw_name=change_type_raw,
+                type=change_type,
+                revision=revision
+            ))
+        return return_list
 
     def list(self, extended=False, rel_path=None):
         full_url_or_path = self.__url_or_path
@@ -370,7 +416,7 @@ class CommonClient(svn.common_base.CommonBase):
                 commit_attr = commit_node.attrib
                 revision = int(commit_attr['revision'])
 
-# TODO(dustin): Convert this to a namedtuple in the next version.
+                # TODO(dustin): Convert this to a namedtuple in the next version.
                 entry = {
                     'kind': kind,
 
