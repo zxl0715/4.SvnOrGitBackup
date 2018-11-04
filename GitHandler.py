@@ -4,38 +4,6 @@ import configparser
 import os
 
 
-def pullAndMapping(path, mapping_file_path):
-    """
-    拉取目标Git，并执行映射文件内容
-    :param path:
-    :param mapping_file_path: 映射文件路径
-    :return:返回True or False
-    """
-    status = pull(path)
-    if not status:
-        return status
-
-        # 设置映射文件生成的目标路径
-    mapping_file_path = '{}\{}'.format(path, mapping_file_path)
-    if os.path.exists(mapping_file_path):
-        try:
-            # 设置git映射文件路径
-            path_mapping = '{}{}'.format(path, '_mapping')
-            if not os.path.exists(path_mapping):
-                os.mkdir(path_mapping)
-            get_mapping_Git(path_mapping, mapping_file_path)
-        except Exception as e:
-            loggingHandler.logger.exception('Git版本库路径：{}，拉取应映射文件项目失败，映射路径：{}。'.format(path, mapping_file_path))
-            return status
-
-        loggingHandler.logger.info('Git版本库路径：{}，拉取应映射文件项目成功，映射路径：{}。'.format(path, mapping_file_path))
-        # status = True
-    else:
-        loggingHandler.logger.info('Git版本库路径：{}，找不到对应映射文件路径：{}。'.format(path, mapping_file_path))
-        # status = False
-    return status
-
-
 def pull(path):
     """
     拉取文件
@@ -64,6 +32,38 @@ def pull(path):
         # print('___________________3')
 
     return True
+
+
+def pullAndMapping(path, mapping_file_path):
+    """
+    拉取目标Git，并执行映射文件内容
+    :param path:
+    :param mapping_file_path: 映射文件路径
+    :return:返回True or False
+    """
+    status = pull(path)
+    if not status:
+        return status
+
+        # 设置映射文件生成的目标路径
+    mapping_file_path = os.path.join(path, mapping_file_path)
+    if os.path.exists(mapping_file_path):
+        try:
+            # 设置git映射文件路径
+            path_mapping = '{}{}'.format(path, '_mapping')
+            if not os.path.exists(path_mapping):
+                os.mkdir(path_mapping)
+            get_mapping_Git(path_mapping, mapping_file_path)
+        except Exception as e:
+            loggingHandler.logger.exception('Git版本库路径：{}，拉取应映射文件项目失败，映射路径：{}。'.format(path, mapping_file_path))
+            return status
+
+        loggingHandler.logger.info('Git版本库路径：{}，拉取应映射文件项目成功，映射路径：{}。'.format(path, mapping_file_path))
+        # status = True
+    else:
+        loggingHandler.logger.info('Git版本库路径：{}，找不到对应映射文件路径：{}。'.format(path, mapping_file_path))
+        # status = False
+    return status
 
 
 def get_backup_project(git_profile_path):
@@ -114,7 +114,7 @@ def get_git_project_name(url):
 
 def get_mapping_Git(root_path, git_profile_path):
     """
-    获取影视的Git库
+    获取映射的Git库
     :param root_path:目标的路径
     :param git_profile_path:Git映射配置文件路径
     :return:

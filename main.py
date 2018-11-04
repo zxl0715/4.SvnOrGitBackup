@@ -20,11 +20,11 @@ def backup_svn_git():
     # 获取本机cpu数量
     num_cores = multiprocessing.cpu_count()
     pool = multiprocessing.Pool(processes=num_cores)
-    for agr in paths:
+    for args in paths:
         '''使用多进程执行'''
         # pool = multiprocessing.Process(target=pull_code, args=(svnOrGit,path,))
-        pool.apply_async(pull_code, args=(agr['type'], agr['path'], agr['MappingFilePath']))
-        loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(agr['type'], agr['path']))
+        pool.apply_async(pull_code, args=(args['type'], args['path'], args['MappingFilePath']))
+        loggingHandler.logger.info('启动多进程拉取代码 {0} 库任务，路径{1}！'.format(args['type'], args['path']))
     pool.close()
     pool.join()
     loggingHandler.logger.info('多进程任务执行代码库同步至本地库完成,共计 {} 个任务!'.format(len(paths)))
@@ -40,10 +40,11 @@ def pull_code(svn_or_git='svn', path='', mapping_file_path=None):
         # todo
         if svn_or_git == 'svn':
             # todo
-            status = SvnHandler.pull(path)
+            status = SvnHandler.pullAndMapping(path,mapping_file_path)
         else:
             # todo
             status = GitHandler.pullAndMapping(path, mapping_file_path)
+            pass
     except Exception as e:
         loggingHandler.logger.exception('错误代码{0}：{1}拉取路径为：{2}代码库出错，错误信息{3}'.format(1001, svn_or_git, path, e))
 
@@ -60,8 +61,10 @@ def backup_file_svn():
     backup_rep = file_handler.getBackupRepository()
     if len(backup_rep) > 0:
         try:
+            loggingHandler.logger.info('开始移动备份工程项目文件至本地备份服务器！')
             file_handler.backupRepository(backup_rep)
-            loggingHandler.logger.info('移动备份工程项目文件至本地备份服务器！')
+            loggingHandler.logger.info('完成移动备份工程项目文件至本地备份服务器！')
+
             file_handler.svn_commit(backup_rep)
         except (KeyboardInterrupt, SystemExit) as e:
             loggingHandler.logger.exception('备份文件到svn出现异常！')
@@ -125,8 +128,7 @@ def make_compressed_file():
             os.makedirs(_dir)
         # 对各部门工程项目进行工程说明
         with open('{}\{}'.format(dst, '项目备份保存清单.txt'), encoding="UTF-8-sig") as f:
-            line = f.readline()
-            while line:
+            for line in f.readlines():
                 if line.find(dir) == 0:
                     # str = line.split(':')
                     f = open('{}\工程说明.txt'.format(_dir), 'a+', encoding="UTF-8-sig")
@@ -136,8 +138,6 @@ def make_compressed_file():
                     f.writelines(line)
                     f.close()
                     break
-                else:
-                    line = f.readline()
         # _dir = r'{}\{}'.format(_dir, os.path.basename(dir))
         # 移除部门简称前缀
         _zip_path = r'{}\{}'.format(dst, dir)
@@ -145,7 +145,7 @@ def make_compressed_file():
             filename = dir[_index + 1:]
         # 进行打包加密压缩
         zipo = ZipObj(_zip_path, pwd)
-        zipo.enCrypt(targetPath=_dir, fileName=filename, deleteSource=False)
+        zipo.enCrypt(target_path=_dir, file_name=filename, delete_source=False)
         loggingHandler.logger.info('打包工程文件：{} 项目归属部门 {} 成功！'.format(filename.rjust(20), _dep_name.rjust(10)))
     # 重命名目标文件路径（作为用为，文件在生成中尾部为下划线结尾，全部生成完成后去除下划线）
     os.rename(zip_path_temp, zip_path)
@@ -190,20 +190,20 @@ def backup_code(is_zip=False):
         loggingHandler.logger.debug('步骤{}：{} {}。'.format(1, 'backup_svn_git', '开始'))
         # todo
         backup_svn_git()
-        loggingHandler.logger.debug('步骤{}：{} {}。'.format(1, 'backup_svn_git', '完成'))
+        loggingHandler.logger.debug('步骤{}：{} {}。{}'.format(1, 'backup_svn_git', '完成', os.linesep))
 
         # 备份文件至svn备份服务器
         loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'backup_file_svn', '开始'))
         # todo
         backup_file_svn()
-        loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'backup_file_svn', '完成'))
+        loggingHandler.logger.debug('步骤{}：{} {}。{}'.format(2, 'backup_file_svn', '完成', os.linesep))
 
         # 是否启用打包归档
         if is_zip:
             # 按工程进行打包归档
-            loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'make_compressed_file', '开始'))
+            loggingHandler.logger.debug('步骤{}：{} {}。'.format(3, 'make_compressed_file', '开始'))
             make_compressed_file()
-            loggingHandler.logger.debug('步骤{}：{} {}。'.format(2, 'make_compressed_file', '完成'))
+            loggingHandler.logger.debug('步骤{}：{} {}。{}'.format(3, 'make_compressed_file', '完成', os.linesep))
     except Exception as e:
         loggingHandler.logger.exception('备份任务出现异常')
 
@@ -215,6 +215,11 @@ def main():
     multiprocessing.freeze_support()  # 解决pyinstaller多进程打包问题
     loggingHandler.logger.info('{}————————————————————————————————————————————————{}'.format(os.linesep, os.linesep))
     loggingHandler.logger.info('启动程序运行！')
+
+    # 初始化备份项目（待备工程清单文件）
+    loggingHandler.logger.info('初始化备份项目（待备工程清单文件）！')
+    SvnHandler.init_all()
+    loggingHandler.logger.info('完成备份项目（待备工程清单文件）！')
 
     '''设置启动运行'''
     first_startup = configHandler.get_first_startup()

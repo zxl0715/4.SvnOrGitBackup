@@ -1,3 +1,4 @@
+import collections
 import os
 import shutil
 import socket
@@ -10,10 +11,19 @@ import SvnHandler
 import configHandler
 import loggingHandler
 
+_prject_info = collections.namedtuple(
+    '_prject_info', [
+        'dep_code',
+        'path',
+    ])
+
 
 class FileHandler:
     def getBackupRepository(self):
-        '''获取需要备份的工程项目，返回备份的工程项目路径'''
+        """
+        获取需要备份的工程项目，返回备份的工程项目路径
+        :return:
+        """
         paths = configHandler.get_svn_or_git_path()
         file_name = '项目备份保存清单.txt'
         backup_rep = []
@@ -25,24 +35,54 @@ class FileHandler:
             # 不存在备份文件的跳过（需要备份的库通过备份文件控制）
             if not os.path.isfile(backup_file_path):
                 continue
-            else:
-                try:
 
-                    with open(backup_file_path, encoding="UTF-8-sig") as f:
-                        # loggingHandler.logger.info('文件编码为：{}！'.format(f.encoding))
-                        for line in f.readline():
-                            str_line = line.split(':')
-                            # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
-                            backup_rep.append({'depCode': path['depCode'], 'RepositoryPath': path['path'],
-                                               'BackupFilePath': backup_file_path, 'RepositoryName': str_line[0],
-                                               'BackupRepository': '{}\{}'.format(os.path.dirname(path['path']),
-                                                                                  str_line[0])})
+            try:
+                # 读取备份控制项目的备份文件清单
+                with open(backup_file_path, 'r', encoding="UTF-8-sig")as f:
+                    # loggingHandler.logger.info('文件编码为：{}！'.format(f.encoding))
+                    for line in f.readlines():
+                        if len(line.strip()) == 0:
+                            continue
+                        str_line = line.split(':')
 
-                except Exception as e:
-                    loggingHandler.logger.exception('读取“项目备份保存清单”文件失败，路径为：{}'.format(backup_file_path))
-            loggingHandler.logger.info('准备备份工程项目文件至备份服务器{}！'.format(path['path']))
+                        project_info = self.get_project_info(paths, os.path.join(
+                            os.path.dirname(path['path']), str_line[0]))
+                        if project_info is not object:
+                            _dep_code = project_info.dep_code
+                            _path = project_info.path
+                        else:
+                            _dep_code = path['depCode']
+                            _path = path['path']
+                        BackupRepository = None
+                        if path['type'] == 'svn':
+                            BackupRepository = os.path.join('{}{}'.format(path['path'], '_mapping'), str_line[0])
+                        else:
+                            BackupRepository = os.path.join(os.path.dirname(path['path']), str_line[0])
+
+                        # 软研中心工程名称格式：sp - 工程名称, 硬研中心工程名称格式：hp - 工程名称, 其他中心待定。
+                        backup_rep.append({'depCode': _dep_code, 'RepositoryPath': _path,
+                                           'BackupFilePath': backup_file_path, 'RepositoryName': str_line[0],
+                                           'BackupRepository': BackupRepository})
+
+            except Exception as e:
+                loggingHandler.logger.exception('读取“项目备份保存清单”文件失败，路径为：{}'.format(backup_file_path))
 
         return backup_rep
+
+    def get_project_info(self, svn_git_info, projcet_name):
+        """
+        获取项目信息，归属于那个部门
+        :param svn_git_info:
+        :param projcet_name:
+        :return:
+        """
+        project_info = object
+        for info in svn_git_info:
+            if info['path'].lower() == projcet_name.lower():
+                project_info = _prject_info(dep_code=info['depCode'], path=info['path'])
+                break
+
+        return project_info
 
     def jedgeProjectStandard(self, path, projectStandardlist):
         for fileOrFloder in projectStandardlist:
@@ -65,17 +105,20 @@ class FileHandler:
             os.remove(inventory_file)
         dirs = os.listdir(backup_server_path)
         for path in dirs:
-            _path = backup_server_path + '/' + path
-            if os.path.isdir(_path):
-                # 排除隐藏文件夹。因为隐藏文件夹过多
-                if path[0] == '.':
-                    pass
-                else:
-                    # 添加非隐藏文件夹
-                    shutil.rmtree(_path)  # 递归删除一个目录以及目录内的所有内容
-            elif os.path.isfile(_path):
-                # 添加文件
-                os.remove(_path)
+            _path = os.path.join(backup_server_path, path)
+            try:
+                if os.path.isdir(_path):
+                    # 排除隐藏文件夹。因为隐藏文件夹过多
+                    if path[0] == '.':
+                        pass
+                    else:
+                        # 添加非隐藏文件夹
+                        shutil.rmtree(_path)  # 递归删除一个目录以及目录内的所有内容
+                elif os.path.isfile(_path):
+                    # 添加文件
+                    os.remove(_path)
+            except Exception as e:
+                loggingHandler.logger.exception('清理svn备份仓库的项目备份保存清单文件失败！')
 
         for path in backup_path:
 
@@ -86,31 +129,29 @@ class FileHandler:
             if not os.path.isfile(file_path):
                 loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path['RepositoryPath'], file_path))
                 continue
-
+            # 判断待备份工程是否存在，存在进行规范校验
             if os.path.exists(path['BackupRepository']):
                 try:
                     # 检查工程项目或单个项目 是否违反【源文件存放规范】
-                    _rmFile = '{}\{}'.format(path['BackupRepository'], '目录说明.txt')
+                    _rmFile = os.path.join(path['BackupRepository'], '目录说明.txt')
                     if os.path.exists(_rmFile) and path['BackupRepository'].find('_mapping') == -1:
                         with open(_rmFile, encoding="UTF-8-sig") as f:
-                            line = f.readline()
-                            while line:
+                            for line in f.readlines():
                                 str_line = line.split(':')
                                 # 目录为工程项目
                                 if line.find(':') > 0 & os.path.exists(
                                         '{}\{}'.format(path['BackupRepository'], str_line[0])):
-                                    self.jedgeProjectStandard('{}\{}'.format(path['BackupRepository'], str_line[0]),
+                                    self.jedgeProjectStandard(os.path.join(path['BackupRepository'], str_line[0]),
                                                               project_standard)
                                 else:  # 为单个项目
                                     self.jedgeProjectStandard(path['BackupRepository'], project_standard)
-                                line = f.readline()
                 except Exception as e:
                     loggingHandler.logger.exception(
                         '检查工程项目或单个项目 是否违法【源文件存放规范】，路径为：{0}'.format(path['BackupRepository']))
             try:
                 # 从 项目备份保存清单文件里，读取需要备份的工程项目信息，并写入到 备份目录
                 with open(file_path, encoding="UTF-8-sig") as f:
-                    for line in f.readline():
+                    for line in f.readlines():
                         # print(line)
                         str_line = line.split(':')
                         if str_line[0] == path['RepositoryName']:
@@ -159,26 +200,26 @@ class FileHandler:
 
             # shutil.move(source_path, tager_path)
 
-            loggingHandler.logger.info('移动备份工程项目文件{}至本地备份服务器{}！'.format(source_path, path['RepositoryPath']))
+            loggingHandler.logger.info('移动备份工程项目文件{}至本地备份服务器{}！'.format(source_path, tager_path))
 
-    # def copyFiles(self, sourceDir, targetDir):
-    #     '''从源svn或git目录，备份文件到备份的svn目录下'''
-    #     if sourceDir.find(".svn") > 0 or sourceDir.find(".git") > 0 or sourceDir.find(".gitignore") > 0:
-    #         return
-    #     for file in os.listdir(sourceDir):
-    #         sourceFile = os.path.join(sourceDir, file)
-    #         targetFile = os.path.join(targetDir, file)
-    #         if len(sourceFile) > 200:
-    #             continue
-    #         if not os.path.exists(targetDir):
-    #             os.makedirs(targetDir)
-    #         if os.path.isfile(sourceFile):
-    #             if not os.path.exists(targetFile) or (
-    #                     os.path.exists(targetFile) and (os.path.getsize(targetFile) != os.path.getsize(sourceFile))):
-    #                 open(targetFile, "wb").write(open(sourceFile, "rb").read())
-    #         if os.path.isdir(sourceFile):
-    #             First_Directory = False
-    #             self.copyFiles(sourceFile, targetFile)
+    def copyFiles(self, sourceDir, targetDir):
+        '''从源svn或git目录，备份文件到备份的svn目录下'''
+        if sourceDir.find(".svn") > 0 or sourceDir.find(".git") > 0 or sourceDir.find(".gitignore") > 0:
+            return
+        for file in os.listdir(sourceDir):
+            sourceFile = os.path.join(sourceDir, file)
+            targetFile = os.path.join(targetDir, file)
+            if len(sourceFile) > 200:
+                continue
+            if not os.path.exists(targetDir):
+                os.makedirs(targetDir)
+            if os.path.isfile(sourceFile):
+                if not os.path.exists(targetFile) or (
+                        os.path.exists(targetFile) and (os.path.getsize(targetFile) != os.path.getsize(sourceFile))):
+                    open(targetFile, "wb").write(open(sourceFile, "rb").read())
+            if os.path.isdir(sourceFile):
+                First_Directory = False
+                self.copyFiles(sourceFile, targetFile)
 
     def svn_commit(self, backupPath=[]):
         '''备份的文件通过svn提交操作'''
@@ -192,59 +233,54 @@ class FileHandler:
             rel_file_paths = []
             # 清除锁定
             repo.cleanup()
+            # 先进行更新
+            repo.update()
 
+            repo.add(' * --no-ignore --force ')
             repo.add('. --no-ignore --force ')
-
             chang_file = repo.status_new()
             for file in chang_file:
                 rel_file_paths.append(file.name)
                 # 未进行管控的文件
-                # if file.type_raw_name == 'unversioned':
-                #     repo.add(file.name)
-                #     un_file_paths.append(file.name)
+                if file.type_raw_name == 'unversioned':
+                    repo.add(file.name)
+                    # un_file_paths.append(file.name)
 
                 # 修改（过时）的文件
                 if file.type_raw_name == 'missing':
                     # 在包文件local.py 添加 删除方法
                     #
                     repo.delete(file.name)
-                    un_file_paths.append(file.name)
+                    # un_file_paths.append(file.name)
 
                 # with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
                 #     f1.writelines('fileStatus：{} :{}！\n'.format(file.type_raw_name, file.name))
-                loggingHandler.logger.debug('fileStatus：{} :{}！\n'.format(file.type_raw_name, file.name))
+                # loggingHandler.logger.debug('fileStatus：{} :{}！\n'.format(file.type_raw_name, file.name))
             # if len(un_file_paths) > 0:
             #     # 添加未管控的文件
             #     repo.add(un_file_paths)
-            bb = len(rel_file_paths)
-            if len(rel_file_paths) > 0:
-
-                # 添加到需要提交的列表
-                message = '备份系统自动提交，日期为:{0}'.format(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-                message += '{}备份服务器ip地址为：{}'.format(os.linesep, self.get_host_ip())
-
-                # 先进行更新
-                repo.update()
-                # repo.commit(message, rel_file_paths)
-                # 提交所有文件
-                # repo.commit(message, ['*/**/*'])
-                repo.commit(message, [''])
-                loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backup_server_path))
+            file_count = len(rel_file_paths)
+            if file_count > 0:
+                pass
             else:
                 loggingHandler.logger.warning('***未有代码变化')
 
+            # 获取本机电脑名
+            myname = socket.getfqdn(socket.gethostname())
+            # 获取本机ip
+            myaddr = socket.gethostbyname(myname)
+
+            # 添加到需要提交的列表
+            message = '备份系统自动提交，日期为:{} {}备份服务器计算机名称：{}ip地址为：{} 共计'.format(
+                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), os.linesep, myname, myaddr, file_count)
+            # repo.commit(message, rel_file_paths)
+            # 提交所有文件
+            # repo.commit(message, ['*/**/*'])
+            repo.commit(message, [''])
+            loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backup_server_path))
+
         except Exception as e:
             loggingHandler.logger.exception('***提交文件至备份svn服务出错（请检查备份svn可用性） {} '.format(backup_server_path))
-
-    def get_host_ip(self):
-        '''获取本机ip'''
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.connect(('8.8.8.8', 80))
-            ip = s.getsockname()[0]
-        finally:
-            s.close()
-        return ip
 
 
 if __name__ == '__main__':

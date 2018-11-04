@@ -10,6 +10,7 @@ class RemoteClient(svn.common.CommonClient):
             svn.constants.LT_URL,
             *args, **kwargs)
 
+
     def checkout(self, path, revision=None):
         cmd = []
         if revision is not None:

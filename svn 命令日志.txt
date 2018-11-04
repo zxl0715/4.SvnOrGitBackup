@@ -236,3 +236,13 @@ D:\testSVN>svn import .  --force
 
 ##svn add 命令 递归目录下所有文件
 svn add . --no-ignore --force 
+
+
+
+------------
+#检出：
+#svn  checkout svn://路径(目录或文件的全路径)　[本地目录全路径] --username　用户名
+
+svn  checkout https://zxl0715:8443/svn/testSVN/ D:\SvnOrGitBackup\other\testSVN1 --username test1 --password gszh8899
+
+svn  checkout https://zxl0715:8443/svn/testSVN/  --username test1 --password gszh8899

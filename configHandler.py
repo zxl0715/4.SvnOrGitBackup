@@ -103,3 +103,39 @@ def get_svn_or_git_path():
 
             value_list.append({'type': type, 'depCode': depCode, 'path': path, 'MappingFilePath': mapping_file_path})
     return value_list
+
+
+def get_svn_git_info():
+    '''获取git或svn路径信息'''
+    sections = cf.sections()
+    value_list = []
+    for section in sections:
+        if section.find('SvnOrGit') == 0:
+            # 源码服务类型为svn或者git
+            type_ = cf.get(section, 'Type').lower()
+            # 部门代号：软研中心“sp” 硬研中心为“hp” 其他中心待定。
+            dept_ode = cf.get(section, 'DepartmentCode')
+
+            # svn或Git账号名称
+            username = None
+            if cf.has_option(section, 'username'):
+                username = cf.get(section, 'username')
+            # svn或Git账号密码
+            password = None
+            if cf.has_option(section, 'password'):
+                password = cf.get(section, 'password')
+            # svn或git 远端地址
+            url = None
+            if cf.has_option(section, 'url'):
+                url = cf.get(section, 'url')
+            # svn或git 存放到本地路径
+            LocalPath = cf.get(section, 'LocalPath')
+            mapping_file_path = None
+            if cf.has_option(section, 'MappingFilePath'):
+                mapping_file_path = cf.get(section, 'MappingFilePath')
+
+            value_list.append(
+                {'type': type_, 'depCode': dept_ode, 'username': username, 'password': password, 'url': url,
+                 'path': LocalPath,
+                 'MappingFilePath': mapping_file_path})
+    return value_list

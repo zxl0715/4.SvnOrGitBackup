@@ -14,7 +14,7 @@ class ZipObj():
         '''需使用WinRAR压缩文件处理，该压缩程序支持命令调用及压缩加密'''
         self.zipPath = configHandler.get_zip_app_path()
 
-    def enCrypt(self, arget_path='', file_name=None, delete_source=False):
+    def enCrypt(self, target_path='', file_name=None, delete_source=False):
         """
             压缩加密，并删除原数据
             window系统调用rar程序
