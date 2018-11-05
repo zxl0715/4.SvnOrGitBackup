@@ -18,6 +18,15 @@ def pull(path):
             loggingHandler.logger.info('Git 路径{}为空版本库。'.format(path))
         # 拉取最新版本
         repo.git.checkout('.')
+
+        remote = repo.remote()
+        import time
+        time.sleep(5)
+        loggingHandler.logger.debug('remote.name1:{}'.format(remote.name))
+        remote.fetch()
+        loggingHandler.logger.debug('remote.name2:{}'.format(remote.name))
+        remote.pull()
+        loggingHandler.logger.debug('remote.name3:{}'.format(remote.name))
         # 强制放弃本地修改（新增、删除文件）
         repo.git.clean('-df')
     except Exception as ee:
@@ -150,7 +159,7 @@ def get_mapping_Git(root_path, git_profile_path):
             # 获取默认版本库 origin
             remote = bare_repo.remote()
             # 从远程版本库拉取分支
-            bare_repo.git.checkout()
+            bare_repo.git.checkout('.')
             # 拉取信息
             remote.pull()
             # 强制放弃本地修改（新增、删除文件）
