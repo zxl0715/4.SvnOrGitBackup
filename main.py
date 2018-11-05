@@ -40,7 +40,7 @@ def pull_code(svn_or_git='svn', path='', mapping_file_path=None):
         # todo
         if svn_or_git == 'svn':
             # todo
-            status = SvnHandler.pullAndMapping(path,mapping_file_path)
+            status = SvnHandler.pullAndMapping(path, mapping_file_path)
         else:
             # todo
             status = GitHandler.pullAndMapping(path, mapping_file_path)
@@ -65,7 +65,10 @@ def backup_file_svn():
             file_handler.backupRepository(backup_rep)
             loggingHandler.logger.info('完成移动备份工程项目文件至本地备份服务器！')
 
+            loggingHandler.logger.info('开始本地SVN备份服务器内容提交！')
             file_handler.svn_commit(backup_rep)
+            loggingHandler.logger.info('完成本地SVN备份服务器内容提交！')
+
         except (KeyboardInterrupt, SystemExit) as e:
             loggingHandler.logger.exception('备份文件到svn出现异常！')
 
@@ -131,12 +134,12 @@ def make_compressed_file():
             for line in f.readlines():
                 if line.find(dir) == 0:
                     # str = line.split(':')
-                    f = open('{}\工程说明.txt'.format(_dir), 'a+', encoding="UTF-8-sig")
-                    _index = line.find("-")
-                    if _index > 0 and (_index + 1) <= len(line):
-                        line = line[_index + 1:]
-                    f.writelines(line)
-                    f.close()
+                    with open('{}\工程说明.txt'.format(_dir), 'a+', encoding="UTF-8-sig") as f_child:
+                        _index = line.find("-")
+                        if _index > 0 and (_index + 1) <= len(line):
+                            line = line[_index + 1:]
+                        f_child.writelines(line)
+
                     break
         # _dir = r'{}\{}'.format(_dir, os.path.basename(dir))
         # 移除部门简称前缀

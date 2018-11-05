@@ -135,40 +135,27 @@ def get_mapping_Git(root_path, git_profile_path):
             loggingHandler.logger.debug('Git 映射项目{}执行进度……'.format(list[0]))
             # continue
             if not os.path.exists(path):
-                repo = git.Repo.init(path, True)
+                # c初始化空的git目录
+                bare_repo = git.Repo.init(path, True)
                 # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
-                repo.create_remote('origin', prject_url)
-                # os.mkdir(path)
-            # 2
-            # ---------
-            repo = git.Repo(path)
-            # repo.delete_remote(test_remote)  # create and delete remotes
+                origin = bare_repo.create_remote('origin', url=prject_url)
+                # 确保我们有数据。fetch()                返回有用的信息
+                origin.fetch()  # fetch,pull and push from and to the remote
+                # 从远程“master”创建本地分支“master”
+                bare_master = bare_repo.create_head('master', origin.refs.master)
+                # 设置本地“master”跟踪远程“master”
+                bare_repo.heads.master.set_tracking_branch(origin.refs.master)
+
+            bare_repo = git.Repo(path)
             # 获取默认版本库 origin
-            remote = repo.remote()
-            # todo
-            remote.fetch()  # fetch,pull and push from and to the remote
-            # repo.heads.master.checkout()  # checkout the branch using git-checkout
-
-            # # 从远程版本库拉取分支
-            # repo.heads.master.checkout()
-            remote.pull('master')
-            repo.git.checkout('.')
+            remote = bare_repo.remote()
+            # 从远程版本库拉取分支
+            bare_repo.git.checkout()
+            # 拉取信息
+            remote.pull()
             # 强制放弃本地修改（新增、删除文件）
-            repo.git.clean('-df')
-            # ---------
-            # origin = repo.remotes[0]  # get default remote by name
-            # origin.refs  # local remote reference
-            # o = origin.rename('new_origin')  # rename remotes
+            bare_repo.git.clean('-df')
 
-            # repo.git.checkout('.')
-            # o.pull()
-            # 远程库的配置信息
-            # print(o.url)
-            # 创建版本库对象
-            # # 克隆版本库
-            # repo.clone(prject_url)
-            # 4从远程版本库拉取分支
-            # repo.remote().pull()
     return True
 
 
@@ -199,6 +186,15 @@ def test():
 if __name__ == '__main__':
     # test()
     try:
-        get_mapping_Git(r'D:\testGit\GitToSVN', 'conf\BackupProject.conf')
+        # get_mapping_Git(r'D:\testGit\GitToSVN', 'conf\BackupProject.conf')
+        rw_dir = 'D:\testGit\git175'
+        repo_dir = os.path.join(rw_dir, 'my-new-repo')
+        file_name = os.path.join(repo_dir, 'new-file')
+
+        r = git.Repo.init(repo_dir)
+        # This function just creates an empty file ...
+        open(file_name, 'wb').close()
+        r.index.add([file_name])
+        r.index.commit("initial commit")
     except Exception as e:
         loggingHandler.logger.exception('错误代码：10002 读取配置文件BackupProject.conf失败，请检查应用程序配置文件信息！')

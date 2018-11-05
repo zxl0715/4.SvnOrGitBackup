@@ -157,7 +157,8 @@ class FileHandler:
                         if str_line[0] == path['RepositoryName']:
                             with open(inventory_file, mode='a+', encoding="UTF-8-sig") as f_child:
                                 # f.writelines('{}-{}'.format(path['depCode'], line))
-                                f_child.write('{}-{}{}'.format(path['depCode'], line, '\r\n'))
+                                f_child.writelines(
+                                    '{}-{}{}'.format(path['depCode'], line.strip('\n').strip('\n').strip('\r'), '\n'))
 
                             break
 
@@ -228,16 +229,21 @@ class FileHandler:
             loggingHandler.logger.warning('备份服务器svn路径不存在{0}，请检查！', backup_server_path)
         bb = 0
         try:
+            loggingHandler.logger.debug('提交备份文件至备份服务器{0}'.format(backup_server_path))
+
             repo = svn.local.LocalClient(backup_server_path)
             un_file_paths = []
             rel_file_paths = []
             # 清除锁定
+            loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {0}'.format('清除锁定'))
             repo.cleanup()
             # 先进行更新
+            loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {0}'.format('进行更新'))
             repo.update()
 
             repo.add(' * --no-ignore --force ')
             repo.add('. --no-ignore --force ')
+            loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {0}'.format('检查文件状态'))
             chang_file = repo.status_new()
             for file in chang_file:
                 rel_file_paths.append(file.name)
@@ -276,6 +282,7 @@ class FileHandler:
             # repo.commit(message, rel_file_paths)
             # 提交所有文件
             # repo.commit(message, ['*/**/*'])
+            loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {0}'.format('进行提交'))
             repo.commit(message, [''])
             loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backup_server_path))
 
