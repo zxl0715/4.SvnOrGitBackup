@@ -101,7 +101,7 @@ def pullAndMapping(path, mapping_file_path):
     status = pull(path)
     if not status:
         return status
-    #判断是否存在映射的待备工程清单文件
+    # 判断是否存在映射的待备工程清单文件
     if len(mapping_file_path.strip()) == 0:
         status = True
         return status
@@ -122,10 +122,10 @@ def pullAndMapping(path, mapping_file_path):
         root_url = r.info()['url']
         get_mapping_svn(path_mapping, mapping_file_path, root_url)
     except Exception as e:
-        loggingHandler.logger.exception('Git版本库路径：{}，拉取应映射文件项目失败，映射路径：{}。'.format(path, mapping_file_path))
+        loggingHandler.logger.exception('Svn版本库路径：{}，拉取应映射文件项目失败，映射路径：{}。'.format(path, mapping_file_path))
         return status
 
-    loggingHandler.logger.info('Git版本库路径：{}，拉取应映射文件项目成功，映射路径：{}。'.format(path, mapping_file_path))
+    loggingHandler.logger.info('Svn版本库路径：{}，拉取应映射文件项目成功，映射路径：{}。'.format(path, mapping_file_path))
     # status = True
     return status
 
@@ -149,10 +149,17 @@ def get_mapping_svn(root_path, mapping_file_path, root_url):
             prject_url = '{}/{}'.format('/'.join(current_url), name_)
             path_ = '{}\{}'.format(root_path, name_)
             loggingHandler.logger.debug('Svn 映射项目{}执行进度……'.format(name_))
-            remote = svn.remote.RemoteClient(url=prject_url)  # 用户账号和密码根据待备工程已保存信息, username=username, password=password
-            result = remote.checkout(path_)
-            if result == None:
-                print(result)
+
+            if not os.path.exists(path_):
+                # 用户账号和密码根据待备工程已保存信息, username=username, password=password
+                svn_client = svn.remote.RemoteClient(url=prject_url)
+                result = svn_client.checkout(path_)
+                if result == None:
+                    loggingHandler.logger.debug('Svn版本库路径：{}，拉取应映射文件项目成功。'.format(path_))
+            else:
+                svn_client = svn.local.LocalClient(path_)
+                svn_client.cleanup()
+                svn_client.update()
     return True
 
 

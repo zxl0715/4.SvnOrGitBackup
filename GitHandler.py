@@ -158,10 +158,10 @@ def get_mapping_Git(root_path, git_profile_path):
             bare_repo = git.Repo(path)
             # 获取默认版本库 origin
             remote = bare_repo.remote()
-            # 从远程版本库拉取分支
-            bare_repo.git.checkout('.')
             # 拉取信息
             remote.pull()
+            # 从远程版本库拉取分支
+            bare_repo.git.checkout('.')
             # 强制放弃本地修改（新增、删除文件）
             bare_repo.git.clean('-df')
 
