@@ -77,7 +77,8 @@ def pull(path):
         r = svn.local.LocalClient(path)
         # 用来清理locked，防止更新时失败
         r.cleanup()
-        r.update()
+        a=r.update()
+        print('update3:{}'.format(a))
 
     # todo:svn 执行 update 报UnicodeDecodeError: 'utf-8' codec can't decode byte 0xca in position 8: invalid continuation byte 错误时修改，svn包下 common_base.py文件，以下代码
     # return stdout.decode().strip('\n').split('\n')
@@ -159,7 +160,8 @@ def get_mapping_svn(root_path, mapping_file_path, root_url):
             else:
                 svn_client = svn.local.LocalClient(path_)
                 svn_client.cleanup()
-                svn_client.update()
+                a=svn_client.update()
+                print('update2:{}'.format(a))
     return True
 
 

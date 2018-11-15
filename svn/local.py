@@ -42,7 +42,7 @@ class LocalClient(svn.common.CommonClient):
         if revision is not None:
             cmd += ['-r', str(revision)]
         cmd += rel_filepaths
-        self.run_command(
+        return self.run_command(
             'update',
             cmd,
             wd=self.path)

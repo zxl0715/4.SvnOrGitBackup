@@ -1,3 +1,4 @@
+
 import collections
 import os
 import shutil
@@ -19,6 +20,9 @@ _prject_info = collections.namedtuple(
 
 
 class FileHandler:
+    """
+    文件操作类
+    """
     def getBackupRepository(self):
         """
         获取需要备份的工程项目，返回备份的工程项目路径
@@ -282,9 +286,9 @@ class FileHandler:
             # repo.commit(message, rel_file_paths)
             # 提交所有文件
             # repo.commit(message, ['*/**/*'])
-            loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {0}'.format('进行提交'))
+            loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {}'.format('进行提交'))
             repo.commit(message, [''])
-            loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {0}'.format(backup_server_path))
+            loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {},合计提交{}个文件或文件夹'.format(backup_server_path, file_count))
 
         except Exception as e:
             loggingHandler.logger.exception('***提交文件至备份svn服务出错（请检查备份svn可用性） {} '.format(backup_server_path))
