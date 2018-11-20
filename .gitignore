@@ -10,3 +10,12 @@
 /重要开发文档管理办法 V1.0-草案.doc
 service/
 *.spec
+git/__pycache__/*
+Clearjob.py
+logs/*
+svn/__pycache__/*
+git/refs/__*
+git/index/__*
+git/objects/__*
+git/objects/*
+git/repo/__*
