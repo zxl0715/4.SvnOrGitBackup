@@ -34,8 +34,13 @@ def init_all():
             path_ = info['path']
             # project_name = url_.split('/')[-1]
             # path_ = os.path.join(path_, project_name)
-            if os.path.exists(path_):
+            # 判断目录是否存在，不存在创建目录
+            if os.path.exists(path_) is False:
+                os.makedirs(path_)
+            # 判断svn是否已存在
+            if os.path.exists(os.path.join(path_, '.svn')):
                 continue
+
             remote = svn.remote.RemoteClient(url=url_, username=username, password=password)
             result = remote.checkout(path_)
             if result == None:
@@ -77,7 +82,7 @@ def pull(path):
         r = svn.local.LocalClient(path)
         # 用来清理locked，防止更新时失败
         r.cleanup()
-        a=r.update()
+        a = r.update()
         print('update3:{}'.format(a))
 
     # todo:svn 执行 update 报UnicodeDecodeError: 'utf-8' codec can't decode byte 0xca in position 8: invalid continuation byte 错误时修改，svn包下 common_base.py文件，以下代码
@@ -160,7 +165,7 @@ def get_mapping_svn(root_path, mapping_file_path, root_url):
             else:
                 svn_client = svn.local.LocalClient(path_)
                 svn_client.cleanup()
-                a=svn_client.update()
+                a = svn_client.update()
                 print('update2:{}'.format(a))
     return True
 

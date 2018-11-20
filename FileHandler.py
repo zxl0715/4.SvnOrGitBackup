@@ -1,4 +1,3 @@
-
 import collections
 import os
 import shutil
@@ -23,6 +22,7 @@ class FileHandler:
     """
     文件操作类
     """
+
     def getBackupRepository(self):
         """
         获取需要备份的工程项目，返回备份的工程项目路径
@@ -102,8 +102,10 @@ class FileHandler:
         project_standard = configHandler.get_project_standard()
         file_name = '项目备份保存清单.txt'
         inventory_file = '{}\{}'.format(backup_server_path, file_name)
-        if not os.path.exists(backup_server_path):
-            loggingHandler.logger.warning('备份服务器svn路径不存在{}，请检查！', backup_server_path)
+        if os.path.exists(backup_server_path) is False:
+            os.makedirs(backup_server_path)
+            # loggingHandler.logger.warning('备份服务器svn路径不存在{}，请检查！', backup_server_path)
+
         # 清理svn备份仓库的项目备份保存清单文件
         if os.path.exists(inventory_file):
             os.remove(inventory_file)
@@ -288,7 +290,8 @@ class FileHandler:
             # repo.commit(message, ['*/**/*'])
             loggingHandler.logger.debug('提交备份文件至备份服务器，动作 {}'.format('进行提交'))
             repo.commit(message, [''])
-            loggingHandler.logger.info('***提交文件至备份svn服务成功!路径为： {},合计提交{}个文件或文件夹'.format(backup_server_path, file_count))
+            loggingHandler.logger.info(
+                '***提交文件至备份svn服务成功!路径为： {},合计提交{}个文件或文件夹'.format(backup_server_path, str(file_count)))
 
         except Exception as e:
             loggingHandler.logger.exception('***提交文件至备份svn服务出错（请检查备份svn可用性） {} '.format(backup_server_path))

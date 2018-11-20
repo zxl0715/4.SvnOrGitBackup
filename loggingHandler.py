@@ -1,11 +1,14 @@
+import inspect
 import logging
 import logging.handlers
 import os
 import configHandler
 
-logDir = 'logs'
-if os.path.exists(os.getcwd() + '/' + logDir) is False:
-    os.mkdir(os.getcwd() + '/' + logDir)
+this_file = inspect.getfile(inspect.currentframe())
+dirpath = os.path.abspath(os.path.dirname(this_file))
+logDir = os.path.join(dirpath,'logs')
+if os.path.exists(logDir) is False:
+    os.mkdir(logDir)
 
 logger = logging.getLogger(__name__)
 

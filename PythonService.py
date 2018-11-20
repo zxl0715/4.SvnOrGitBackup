@@ -6,7 +6,7 @@
     A brief description goes here.
 
     :copyright: (c) YEAR by zxl0715.
-    :license: LICENSE_NAME, see LICENSE_FILE for more details.
+    :license: LICENSE_NAME, see LICENSE_FILE for moree details.
 """
 
 import win32timezone
@@ -25,7 +25,9 @@ import sys
 import servicemanager
 import win32timezone
 import loggingHandler
-import main
+# from main import *
+from MyTickScheduler import MyTickScheduler
+from mainBackup import Worker
 
 
 class PythonService(win32serviceutil.ServiceFramework):
@@ -36,30 +38,64 @@ class PythonService(win32serviceutil.ServiceFramework):
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
         self.hWaitStop = win32event.CreateEvent(None, 0, 0, None)
+        self.logger = self._getLogger()
+        self.job = MyTickScheduler()
 
-        self.T = time.time()
         self.run = True
 
+    def _getLogger(self):
+        '''日志记录'''
+        logger = logging.getLogger('[PythonService]')
+        this_file = inspect.getfile(inspect.currentframe())
+        dirpath = os.path.abspath(os.path.dirname(this_file))
+        if os.path.isdir('%s\\logs' % dirpath):  # 创建log文件夹
+            pass
+        else:
+            os.mkdir('%s\\logs' % dirpath)
+        dir = '%s\\logs' % dirpath
+
+        handler = TimedRotatingFileHandler(os.path.join(dir, "Clearjob.log"), when="midnight", interval=1,
+                                           backupCount=20)
+        formatter = logging.Formatter(fmt='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
+                                      datefmt='%Y-%m-%d %H:%M:%S')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.setLevel(logging.DEBUG)
+
+        return logger
+
     def SvcDoRun(self):
-        loggingHandler.logger.info("service is run....")
+        self.logger.info("service is run....")
         try:
-            # while self.run:
-            loggingHandler.logger.info('---Begin---')
-
-            main()
-
-            loggingHandler.logger.info('---End---')
-            time.sleep(10)
-
+            # import loggingHandler
+            # # loggingHandler.logger.info('启动程序运行！')
+            # this_file = inspect.getfile(inspect.currentframe())
+            # dirpath = os.path.abspath(os.path.dirname(this_file))
+            # self.logger.info('this_file:{}'.format(this_file))
+            # self.logger.info('dirpath:{}'.format(dirpath))
+            # dir = '%s\\log' % dirpath
+            # self.logger.info('2:{}'.format(os.path.join(dir, "Clearjob.log")))
+            # self.logger.info('1111---Begin---')
+            # self.logger.info('22---end---')
+            # from main import main_job
+            # main_job()
+            # self.logger.info('22---end---')
+            woker = Worker()
+            woker.first_run()
+            self.job.run()  # 开始任务
         except Exception as e:
-            loggingHandler.logger.info(e)
-            time.sleep(60)
+            self.logger.exception('错误代码:{}：'.format(e))
+
+        while self.run:
+            time.sleep(4)
 
     def SvcStop(self):
-        loggingHandler.logger.info("service is stop....")
+        self.logger.info("服务器准备停止....")
+        self.run = False
+        self.job.stop()  # 停止任务
+        self.logger.info("正在停止中....")
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.hWaitStop)
-        self.run = False
 
 
 if __name__ == '__main__':

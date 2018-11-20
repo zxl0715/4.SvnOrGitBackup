@@ -1,11 +1,17 @@
 import configparser
+import inspect
+import os
+
 import loggingHandler
 from collections import Iterable
 
 cf = configparser.ConfigParser()
 '''conf.ini  （ini，conf）'''
 try:
-    cf.read('conf/app.conf', encoding="utf-8-sig")
+
+    this_file = inspect.getfile(inspect.currentframe())
+    dirpath = os.path.abspath(os.path.dirname(this_file))
+    cf.read(os.path.join(dirpath, 'conf/app.conf'), encoding="utf-8-sig")
 except Exception as e:
     loggingHandler.logger.exception('错误代码：10001 读取配置文件失败，请检查应用程序配置文件信息！')
 
