@@ -25,14 +25,15 @@ import sys
 import servicemanager
 import win32timezone
 import loggingHandler
+import traceback
 # from main import *
 from MyTickScheduler import MyTickScheduler
 from mainBackup import Worker
 
 
 class PythonService(win32serviceutil.ServiceFramework):
-    _svc_name_ = "SvnOrGitBackupService"  # 服务名
-    _svc_display_name_ = "SvnOrGitBackupService"  # job在windows services上显示的名字
+    _svc_name_ = "SvnOrGitBackupService6"  # 服务名
+    _svc_display_name_ = "SvnOrGitBackupService6"  # job在windows services上显示的名字
     _svc_description_ = "备份SVN和GIT项目的程序"  # job的描述
 
     def __init__(self, args):
@@ -65,6 +66,9 @@ class PythonService(win32serviceutil.ServiceFramework):
         return logger
 
     def SvcDoRun(self):
+        # 等待服务被停止
+        win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
+
         self.logger.info("service is run....")
         try:
             # import loggingHandler
@@ -89,6 +93,7 @@ class PythonService(win32serviceutil.ServiceFramework):
         while self.run:
             time.sleep(4)
 
+
     def SvcStop(self):
         self.logger.info("服务器准备停止....")
         self.run = False
@@ -99,21 +104,39 @@ class PythonService(win32serviceutil.ServiceFramework):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1:
-        """
-        以下代码解决 
-        提示：错误1053 服务没有及时相应启动或控制请求
-        """
-        try:
-            evtsrc_dll = os.path.abspath(servicemanager.__file__)
-            servicemanager.PrepareToHostSingle(PythonService)  # 如果修改过名字，名字要统一
-            servicemanager.Initialize('PythonService', evtsrc_dll)  # 如果修改过名字，名字要统一
-            servicemanager.StartServiceCtrlDispatcher()
-        except win32service.error as details:
-            if details[0] == winerror.ERROR_FAILED_SERVICE_CONTROLLER_CONNECT:
-                win32serviceutil.usage()
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        # test_commands(base_path)
+        pass
     else:
-        win32serviceutil.HandleCommandLine(PythonService)  # 如果修改过名字，名字要统一
+        if len(sys.argv) == 1:
+            try:
+                evtsrc_dll = os.path.abspath(servicemanager.__file__)
+                servicemanager.PrepareToHostSingle(PythonService)  # 如果修改过名字，名字要统一
+                servicemanager.Initialize('PythonService', evtsrc_dll)  # 如果修改过名字，名字要统一
+                servicemanager.StartServiceCtrlDispatcher()
+            except Exception as exp:
+                print('ERROR : %s, Detail : %s' % (exp, traceback.format_exc()))
+                if exp.args[0] == winerror.ERROR_FAILED_SERVICE_CONTROLLER_CONNECT:
+                    win32serviceutil.usage()
+        else:
+            win32serviceutil.HandleCommandLine(PythonService)
+
+    #
+    # if len(sys.argv) == 1:
+    #     """
+    #     以下代码解决
+    #     提示：错误1053 服务没有及时相应启动或控制请求
+    #     """
+    #     try:
+    #         evtsrc_dll = os.path.abspath(servicemanager.__file__)
+    #         servicemanager.PrepareToHostSingle(PythonService)  # 如果修改过名字，名字要统一
+    #         servicemanager.Initialize('PythonService', evtsrc_dll)  # 如果修改过名字，名字要统一
+    #         servicemanager.StartServiceCtrlDispatcher()
+    #     except win32service.error as details:
+    #         if details[0] == winerror.ERROR_FAILED_SERVICE_CONTROLLER_CONNECT:
+    #             win32serviceutil.usage()
+    # else:
+    #     win32serviceutil.HandleCommandLine(PythonService)  # 如果修改过名字，名字要统一
 
 '''
 安装服务　　　　python PythonService.py install

@@ -1,0 +1,30 @@
+安装服务　　　　python PythonService.py install
+自动启动　　　　python PythonService.py –startup auto install # 如果需要设置开机自启动，则须要使用命令
+启动服务　　　　python PythonService.py start
+重启服务　　　　python PythonService.py restart
+停止服务　　　　python PythonService.py stop
+删除\卸载服务　 python PythonService.py remove
+
+
+
+##windows服务器调试模式
+
+C:\Program Files\Python37\Lib\site-packages\win32>pythonservice.exe -debug SvnOrGitBackupService
+
+
+
+
+pyinstaller -F PythonService.py -n SvnOrGitBackupService  --add-data "conf\app.conf;conf" 
+
+
+pyinstaller -F PythonService.py -n SvnOrGitBackupService  --add-data "conf\app.conf;conf" 
+
+
+pyinstaller -w PythonService.py -n SvnOrGitBackupService -i favicon.ico -v 
+
+
+python PythonService.py py2exe  
+
+
+ProductCollectWin32ServiceSetup.py
+ProductCollectWin32Service.py

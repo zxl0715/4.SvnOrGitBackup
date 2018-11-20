@@ -9,3 +9,6 @@ pyinstaller -w main.py -n SvnOrGitBackup -i favicon.ico -y
 #-y 生成时是否删除原来生存的内容
 pyinstaller -w main.py -n SvnOrGitBackup -i favicon.ico --add-data "conf\app.conf;conf" -y
 pause
+
+
+pyinstaller -w mainBackup.py -n SvnOrGitBackup -i favicon.ico 
