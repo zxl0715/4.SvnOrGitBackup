@@ -133,7 +133,8 @@ class Worker(object):
             if os.path.exists(_dir) is False:
                 os.makedirs(_dir)
             # 对各部门工程项目进行工程说明
-            with open('{}\{}'.format(dst, '项目备份保存清单.txt'), encoding="UTF-8-sig") as f:
+            file_name = configHandler.get_backup_conf_file()
+            with open('{}\{}'.format(dst, file_name), encoding="UTF-8-sig") as f:
                 for line in f.readlines():
                     if line.find(dir) == 0:
                         # str = line.split(':')

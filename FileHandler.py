@@ -29,7 +29,7 @@ class FileHandler:
         :return:
         """
         paths = configHandler.get_svn_or_git_path()
-        file_name = '项目备份保存清单.txt'
+        file_name = configHandler.get_backup_conf_file()
         backup_rep = []
         for path in paths:
             if path['path'].strip() == '':
