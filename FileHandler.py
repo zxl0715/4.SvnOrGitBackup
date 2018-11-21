@@ -100,7 +100,7 @@ class FileHandler:
         backup_server_path = configHandler.get_backup_path()
         # 目录校验
         project_standard = configHandler.get_project_standard()
-        file_name = '项目备份保存清单.txt'
+        file_name = configHandler.get_backup_conf_file()
         inventory_file = '{}\{}'.format(backup_server_path, file_name)
         if os.path.exists(backup_server_path) is False:
             os.makedirs(backup_server_path)
