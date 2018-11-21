@@ -410,7 +410,7 @@ class Git(LazyMixin):
                 except ValueError:
                     return stderr or b''
 
-            with open('logs/log_git.txt', 'a+', encoding='utf-8') as f1:
+            with open('logs/log_git.log', 'a+', encoding='utf-8') as f1:
                 f1.writelines('cmd.py 414 status:{}  {}'.format(status, '\n'))
 
             if status != 0:

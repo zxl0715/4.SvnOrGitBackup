@@ -93,7 +93,7 @@ class FileHandler:
             if not os.path.exists('{}\{}'.format(path, fileOrFloder)):
                 loggingHandler.logger.warning('违反【源文件存放规范】在{} 目录下 {} 文件或目录不存在，请检查！'.format(path, fileOrFloder))
 
-    # backupPath=<class 'list'>: [['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '产销差系统', 'D:\\testSVN\\产销差系统'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '智慧水务赋能管控平台', 'D:\\testSVN\\智慧水务赋能管控平台'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.txt', '一个项目工程', 'D:\\testSVN\\一个项目工程']]
+    # backupPath=<class 'list'>: [['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.log', '产销差系统', 'D:\\testSVN\\产销差系统'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.log', '智慧水务赋能管控平台', 'D:\\testSVN\\智慧水务赋能管控平台'], ['sp', 'D:\\testSVN', 'D:\\testSVN\\项目备份保存清单.log', '一个项目工程', 'D:\\testSVN\\一个项目工程']]
     def backupRepository(self, backup_path=[]):
         '''从源svn或git代码库复制到svn备份库的'''
         # svn备份仓库地址
@@ -131,7 +131,7 @@ class FileHandler:
             if path['BackupFilePath'].strip() == '':
                 continue
             file_path = path['BackupFilePath']
-            # 检查根目录下是否有 项目备份保存清单.txt 文件
+            # 检查根目录下是否有 项目备份保存清单.log 文件
             if not os.path.isfile(file_path):
                 loggingHandler.logger.warning('在{}目录下 {} 文件不存在，请检查！'.format(path['RepositoryPath'], file_path))
                 continue

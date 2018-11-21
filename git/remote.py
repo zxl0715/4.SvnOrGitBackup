@@ -674,7 +674,7 @@ class Remote(LazyMixin, Iterable):
         try:
             proc.wait(stderr=stderr_text)
         except Exception as e:
-            with open('logs/log_git.txt', 'a+', encoding='utf-8') as f1:
+            with open('logs/log_git.log', 'a+', encoding='utf-8') as f1:
                 f1.writelines('remote.py cmd:{} :{} {}！\n'.format(682, e, stderr_text))
 
         if stderr_text:

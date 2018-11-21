@@ -301,7 +301,7 @@ class CommonClient(svn.common_base.CommonBase):
         try:
             root = xml.etree.ElementTree.fromstring(raw)
         except Exception as e:
-            with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+            with open('logs/log.log', 'a+', encoding='utf-8') as f1:
                 f1.writelines(
                     ' svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(
                         e))
@@ -343,7 +343,7 @@ class CommonClient(svn.common_base.CommonBase):
         try:
             root = xml.etree.ElementTree.fromstring(raw)
         except Exception as e:
-            with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+            with open('logs/log.log', 'a+', encoding='utf-8') as f1:
                 f1.writelines(
                     ' svn\common.py xml.etree.ElementTree.fromstring(raw)  :{}！\n'.format(
                         e))

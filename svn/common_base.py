@@ -36,11 +36,11 @@ class CommonBase(object):
             r = p.wait()
             p.stdout.close()
 
-            with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+            with open('logs/log.log', 'a+', encoding='utf-8') as f1:
                 f1.writelines('subprocess.Popen cmd :{}  r:{}！{}'.format(cmd, r, '\n'))
 
             if r != success_code:
-                with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+                with open('logs/log.log', 'a+', encoding='utf-8') as f1:
                     f1.writelines('subprocess.Popen cmd  r :{}！\n'.format(r))
                 raise svn.exception.SvnException(
                     "Command failed with ({}): {}\n{}".format(
@@ -49,7 +49,7 @@ class CommonBase(object):
             if return_binary is True or do_combine is True:
                 return stdout
         except Exception as e:
-            with open('logs/log.txt', 'a+', encoding='utf-8') as f1:
+            with open('logs/log.log', 'a+', encoding='utf-8') as f1:
                 f1.writelines('subprocess.Popen Exception cmd:{} :{}  cwd{}！\n'.format(cmd[2], e, wd))
 
         return stdout.decode(svn.config.CONSOLE_ENCODING).strip('\n').split('\n')

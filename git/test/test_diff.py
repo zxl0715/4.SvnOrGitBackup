@@ -52,7 +52,7 @@ class TestDiff(TestBase):
     def test_diff_with_staged_file(self, rw_dir):
         # SETUP INDEX WITH MULTIPLE STAGES
         r = Repo.init(rw_dir)
-        fp = osp.join(rw_dir, 'hello.txt')
+        fp = osp.join(rw_dir, 'hello.log')
         with open(fp, 'w') as fs:
             fs.write("hello world")
         r.git.add(Git.polish_url(fp))
