@@ -147,13 +147,25 @@ class Worker(object):
                         break
             # _dir = r'{}\{}'.format(_dir, os.path.basename(dir))
             # 移除部门简称前缀
-            _zip_path = r'{}\{}'.format(dst, dir)
+            _zip_path = r'{}\{}'.format(dst, dir)#需要压缩的文件夹路径
             if _index > 0 and (_index + 1) <= len(dir):
-                filename = dir[_index + 1:]
+                filename = dir[_index + 1:]#压缩文件名称
+
+            if os.path.isdir(_zip_path):  # 判断是文件夹还是文件
+                if not os.listdir(_zip_path):  # 判断文件夹是否为空
+                    loggingHandler.logger.warning(
+                        '打包工程文件：{} 项目为空文件！'.format(filename.rjust(20)))
+
+                    continue
+
             # 进行打包加密压缩
-            zipo = ZipObj(_zip_path, pwd)
-            zipo.enCrypt(target_path=_dir, file_name=filename, delete_source=False)
-            loggingHandler.logger.info('打包工程文件：{} 项目归属部门 {} 成功！'.format(filename.rjust(20), _dep_name.rjust(10)))
+            try:
+                zipo = ZipObj(_zip_path, pwd)
+                zipo.enCrypt(target_path=_dir, file_name=filename, delete_source=False)
+                loggingHandler.logger.info('打包工程文件：{} 项目归属部门 {} 成功！'.format(filename.rjust(20), _dep_name.rjust(10)))
+            except Exception as e:
+                loggingHandler.logger.exception('打包工程文件任务出现异常，原文件路径：{},目标路径：{}'.format(_zip_path, _dir))
+
         # 重命名目标文件路径（作为用为，文件在生成中尾部为下划线结尾，全部生成完成后去除下划线）
         os.rename(zip_path_temp, zip_path)
 

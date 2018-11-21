@@ -34,7 +34,8 @@ class ZipObj():
         if os.path.isdir(self.file_path_name):
             source = self.file_path_name + '\*.*'
         if pf.system() == "Windows":
-            cmd = ['rar', 'a', '-r', '-ibck', '-ad', '-ep1', '-p{0}'.format(self.passwd), target_object, source]
+            cmd = ['rar', 'a', '-r', '-ibck', '-ad', '-ep1', '-p{0}'.format(self.passwd), '-ap{}'.format(file_name),
+                   target_object, source]
             p = subprocess.Popen(cmd, executable=self.zipPath, stdout=subprocess.PIPE)
             p.wait()
         else:
@@ -55,7 +56,7 @@ class ZipObj():
 
 
 if __name__ == "__main__":
-    pwd = '123'
+    pwd = 'qwe123'
     _zip_path = '{}\{}'.format(os.getcwd(), 'zipObj.py')
     _dir = os.getcwd()
     file_name = '压缩文件夹名称'
