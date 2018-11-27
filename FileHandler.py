@@ -181,7 +181,7 @@ class FileHandler:
                 continue
             # 文件移动的方案
             enable_plan = 1
-            if enable_plan == 2:
+            if enable_plan == 1:
                 # 方案一
                 # todo
                 try:
@@ -197,9 +197,11 @@ class FileHandler:
                 except Exception as e:
                     loggingHandler.logger.exception('从{} 复制到 {}失败！'.format(source_path, tager_path))
             else:
-
-                # 方案二
-                self.copyFiles(source_path, tager_path)
+                try:
+                    # 方案二
+                    self.copyFiles(source_path, tager_path)
+                except Exception as e:
+                    loggingHandler.logger.exception('从{} 复制到 {}失败2！'.format(source_path, tager_path))
 
             # shutil.copytree(path[4], '{}\{}'.format(backup_server_path, os.path.basename(path[4])), symlinks=False,
             #                 ignore=shutil.ignore_patterns(".svn"), copy_function=shutil.copy2,
