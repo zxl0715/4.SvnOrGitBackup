@@ -411,7 +411,9 @@ class Git(LazyMixin):
                     return stderr or b''
 
             with open('logs/log_git.log', 'a+', encoding='utf-8') as f1:
-                f1.writelines('cmd.py 414 status:{}  {}'.format(status, '\n'))
+                import time
+                loac_time = '%Y-%m-%d %H:%M:%S', time.localtime(time.time())
+                f1.writelines('time:{}  cmd.py 414 status:{}  {}'.format(loac_time, status, '\n'))
 
             if status != 0:
                 errstr = read_all_from_possibly_closed_stream(self.proc.stderr)

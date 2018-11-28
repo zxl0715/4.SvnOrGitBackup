@@ -37,7 +37,9 @@ class CommonBase(object):
             p.stdout.close()
 
             with open('logs/log.log', 'a+', encoding='utf-8') as f1:
-                f1.writelines('subprocess.Popen cmd :{}  r:{}！{}'.format(cmd, r, '\n'))
+                import time
+                loac_time = '%Y-%m-%d %H:%M:%S', time.localtime(time.time())
+                f1.writelines('time:{}subprocess.Popen cmd :{}  r:{}！{}'.format(loac_time, cmd, r, '\n'))
 
             if r != success_code:
                 with open('logs/log.log', 'a+', encoding='utf-8') as f1:
