@@ -285,8 +285,9 @@ class FileHandler:
             myaddr = socket.gethostbyname(myname)
 
             # 添加到需要提交的列表
-            message = '备份系统自动提交，日期为:{} {}备份服务器计算机名称：{}ip地址为：{} 共计'.format(
-                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), os.linesep, myname, myaddr, file_count)
+            message = '备份系统自动提交，日期为:{} {}备份服务器计算机名称：{}，ip地址为：{} 共计{}个文件'.format(
+                time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())), os.linesep, myname, myaddr,
+                str(file_count))
             # repo.commit(message, rel_file_paths)
             # 提交所有文件
             # repo.commit(message, ['*/**/*'])
