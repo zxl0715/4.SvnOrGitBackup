@@ -412,7 +412,7 @@ class Git(LazyMixin):
 
             with open('logs/log_git.log', 'a+', encoding='utf-8') as f1:
                 import time
-                loac_time = '%Y-%m-%d %H:%M:%S', time.localtime(time.time())
+                loac_time = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
                 f1.writelines('time:{}  cmd.py 414 status:{}  {}'.format(loac_time, status, '\n'))
 
             if status != 0:
