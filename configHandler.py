@@ -22,7 +22,7 @@ def get_first_startup():
 
 
 def get_logging_level():
-    """#程序启动是否运行，1为运行，0为不运行"""
+    """日志等级 （NOTSET ; DEBUG ; INFO ; WARNING ; ERROR ;CRITICAL）"""
     return cf.get('logginConfig', 'LoggingLevel')
 
 
