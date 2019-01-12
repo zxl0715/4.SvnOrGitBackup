@@ -180,7 +180,7 @@ class FileHandler:
                 loggingHandler.logger.info('工程项目文件：{}不存在！'.format(source_path))
                 continue
             # 文件移动的方案
-            enable_plan = 1
+            enable_plan = 2
             if enable_plan == 1:
                 # 方案一
                 # todo
@@ -218,7 +218,7 @@ class FileHandler:
         for file in os.listdir(sourceDir):
             sourceFile = os.path.join(sourceDir, file)
             targetFile = os.path.join(targetDir, file)
-            if len(sourceFile) > 200:
+            if len(sourceFile) > 240:
                 continue
             if not os.path.exists(targetDir):
                 os.makedirs(targetDir)
