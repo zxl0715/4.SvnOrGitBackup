@@ -18,3 +18,4 @@ git/index/__*
 git/objects/__*
 git/objects/*
 git/repo/__*
+venv1/*
