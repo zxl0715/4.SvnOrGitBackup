@@ -19,3 +19,5 @@ git/objects/__*
 git/objects/*
 git/repo/__*
 venv1/*
+/.idea/4.SvnOrGitBackup.iml
+/.idea/misc.xml
