@@ -131,40 +131,62 @@ def get_mapping_Git(root_path, git_profile_path):
     valueList = get_backup_project(git_profile_path)
     with open('{}/{}'.format(root_path, '目录说明.txt'), 'w', encoding="UTF-8-sig")as f:
         for list in valueList:
-            prject_url = list[2]
-            name_git = get_git_project_name(prject_url)
+            try:
+                prject_url = list[2]
+                name_git = get_git_project_name(prject_url)
 
-            path = '{}\{}'.format(root_path, name_git)
-            if list[1].strip() == '':
-                line = '{}'.format(list[0])
-            else:
-                line = '{}-{}'.format(list[0], list[1])
+                path = '{}\{}'.format(root_path, name_git)
+                if list[1].strip() == '':
+                    line = '{}'.format(list[0])
+                else:
+                    line = '{}-{}'.format(list[0], list[1])
 
-            f.writelines('{}:{}{}'.format(name_git, line, '\n'))
-            loggingHandler.logger.debug('Git 映射项目{}执行进度……'.format(list[0]))
-            # continue
-            if not os.path.exists(path):
-                # c初始化空的git目录
-                bare_repo = git.Repo.init(path, True)
-                # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
-                origin = bare_repo.create_remote('origin', url=prject_url)
-                # 确保我们有数据。fetch()                返回有用的信息
-                origin.fetch()  # fetch,pull and push from and to the remote
-                # 从远程“master”创建本地分支“master”
-                bare_master = bare_repo.create_head('master', origin.refs.master)
-                # 设置本地“master”跟踪远程“master”
-                bare_repo.heads.master.set_tracking_branch(origin.refs.master)
+                f.writelines('{}:{}{}'.format(name_git, line, '\n'))
+                loggingHandler.logger.debug('Git 映射项目{}执行进度……'.format(list[0]))
+                # continue
+                if not os.path.exists(path):
+                    # c初始化空的git目录
+                    bare_repo = git.Repo.init(path, True)
+                    # 3远程名称作为外部从仓库的别名，可以通过它push和fetch数据
+                    origin = bare_repo.create_remote('origin', url=prject_url)
 
-            bare_repo = git.Repo(path)
-            # 获取默认版本库 origin
-            remote = bare_repo.remote()
-            # 拉取信息
-            remote.pull()
-            # 从远程版本库拉取分支
-            bare_repo.git.checkout('.')
-            # 强制放弃本地修改（新增、删除文件）
-            bare_repo.git.clean('-df')
+                    # bare_repo.config_reader()  # 获得仓库中只读的配置信息
+                    # bare_repo.config_writer()  # 更新仓库中的配置信息
+                    assert origin.exists()
+                    assert origin == bare_repo.remotes.origin == bare_repo.remotes['origin']
+                    # 确保我们有数据。fetch()                返回有用的信息
+                    origin.fetch()  # fetch,pull and push from and to the remote
 
+                    origin = bare_repo.remotes.origin  # get default remote by name
+                    origin.refs  # local remote reference
+
+                    # 从远程“master”创建本地分支“master”
+                    if (len(bare_repo.heads) == 0 and len(bare_repo.remote().refs) > 0):  # 判断是否存在分支
+                        bare_repo.create_head('master', origin.refs.master)
+                        # 设置本地“master”跟踪远程“master”
+                        bare_repo.heads.master.set_tracking_branch(origin.refs.master)
+
+                bare_repo = git.Repo(path)
+                # 获取默认版本库 origin
+                remote = bare_repo.remote()
+                if (len(bare_repo.heads) == 0 and len(bare_repo.remote().refs) > 0):  # 判断是否存在分支
+                    bare_repo.create_head('master', origin.refs.master)
+                    # 设置本地“master”跟踪远程“master”
+                    bare_repo.heads.master.set_tracking_branch(origin.refs.master)
+                if len(bare_repo.heads)>0 :
+                    # 拉取信息
+                    remote.pull()
+                    # 从远程版本库拉取分支
+                    bare_repo.heads.master.checkout()
+                    # bare_repo.git.checkout('.')
+                    # 强制放弃本地修改（新增、删除文件）
+                    bare_repo.git.clean('-df')
+                    loggingHandler.logger.debug('Git 映射项目{}拉取完成。'.format(list[0]))
+                else:
+                    loggingHandler.logger.debug('Git 映射项目{}为空内容！'.format(list[0]))
+
+            except Exception as e:
+                loggingHandler.logger.exception('获取Git项目{}内容失败！'.format(list[0]))
     return True
 
 
