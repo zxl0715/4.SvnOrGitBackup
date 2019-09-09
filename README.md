@@ -17,6 +17,11 @@ python setup.py bdist_wininst   #Windows 下使用 生成NT平台安装包(.exe)
 python setup.py bdist_rpm       #/Linux 下使用 生成rpm包
 
 #源代码打包成可执行文件 
+
+Pyinstaller安装  
+cmd下输入指令  
+pip install PyInstaller  
+
 `yinstaller  --hidden-import=main -w main.py -n SvnOrGitBackup -i favicon.ico -r app.conf`  
  
     --hidden-import=main  解决运行弹出错误提示框：failed to execute script main 
