@@ -22,7 +22,7 @@ def _init_externals():
         sys.path.insert(0, osp.join(osp.dirname(__file__), 'ext', 'gitdb'))
 
     try:
-        import gitdb
+        import git
     except ImportError:
         raise ImportError("'gitdb' could not be found in your PYTHONPATH")
     # END verify import

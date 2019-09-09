@@ -7,7 +7,7 @@ pyinstaller -w main.py -n SvnOrGitBackup -i favicon.ico -y
 #-i 应用图标
 #--add-data 需要拷贝资源到生存目录
 #-y 生成时是否删除原来生存的内容
-pyinstaller -w main.py -n SvnOrGitBackup -i favicon.ico --add-data "conf\app.conf;conf" -y
+pyinstaller -w main.py -n mainBackup -i favicon.ico --add-data "conf\app.conf;conf" -y
 pause
 
 
